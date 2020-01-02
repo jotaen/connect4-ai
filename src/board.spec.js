@@ -47,7 +47,14 @@ describe("Board", () => {
         [0,0,2,2,2,2,0],
         [0,0,1,1,1,1,0],
       ],
-      // todo add vertical
+      [
+        [0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0],
+        [0,0,1,0,0,0,2],
+        [0,0,1,0,0,0,2],
+        [0,0,1,0,0,0,2],
+        [0,0,1,0,0,0,2],
+      ],
       // todo add diagonal
     ].forEach(board => {
       assert.throws(() => hasWon(board))
@@ -63,6 +70,7 @@ describe("Board", () => {
       [0,0,0,0,0,0,0],
       [0,0,1,1,1,1,0],
     ]
+    assert.strictEqual(hasWon(board1), 1)
     const board2 = [
       [0,0,0,0,0,0,0],
       [0,0,0,0,0,0,0],
@@ -70,6 +78,27 @@ describe("Board", () => {
       [0,0,0,1,1,1,2],
       [0,0,0,1,2,2,1],
       [0,0,2,1,1,1,2],
+    ]
+    assert.strictEqual(hasWon(board2), 2)
+  })
+
+  it("is won there is a vertical winning sequence", () => {
+    const board1 = [
+      [0,0,0,0,0,0,0],
+      [0,0,0,0,0,0,0],
+      [0,0,1,0,0,0,0],
+      [0,0,1,0,0,0,0],
+      [0,0,1,0,0,0,0],
+      [0,0,1,0,0,0,0],
+    ]
+    assert.strictEqual(hasWon(board1), 1)
+    const board2 = [
+      [0,0,0,0,0,0,0],
+      [0,0,0,0,2,0,0],
+      [0,0,1,0,2,0,0],
+      [0,0,1,0,2,0,0],
+      [0,0,1,2,2,2,1],
+      [0,0,2,2,1,1,2],
     ]
     assert.strictEqual(hasWon(board2), 2)
   })
