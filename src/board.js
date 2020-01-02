@@ -8,36 +8,23 @@ const winningSequence = R.compose(
   R.aperture(4),
 )
 
-const mapIndexed = R.addIndex(R.map);
-const transposeDiagonal = xxs => R.compose(
-  R.filter(xs => xs.length >= 4),
-  R.map(R.reject(x => x === undefined)),
-  R.transpose,
-  R.map(([l, r, xs]) => R.unnest([R.repeat(undefined, l), xs, R.repeat(undefined, r)])),
-  mapIndexed((xs, i) => [xxs.length-i-1, i, xs]),
-)(xxs)
-
 const horizontalWins = R.compose(
   R.reject(R.isEmpty),
   R.map(winningSequence),
 )
 
 const verticalWins = R.compose(
-  R.reject(R.isEmpty),
-  R.map(winningSequence),
+  horizontalWins,
   R.transpose,
 )
 
 const diagonalDownWins = R.compose(
-  R.reject(R.isEmpty),
-  R.map(winningSequence),
-  transposeDiagonal,
+  horizontalWins,
+  F.transposeDiagonal(4),
 )
 
 const diagonalUpWins = R.compose(
-  R.reject(R.isEmpty),
-  R.map(winningSequence),
-  transposeDiagonal,
+  diagonalDownWins,
   R.reverse,
 )
 
