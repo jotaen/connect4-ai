@@ -19,6 +19,11 @@ describe("Board", () => {
         assert.strictEqual(f, null)
       }))
     })
+
+    it("creates distinct arrays (not references)", () => {
+      const board = create(6, 7)
+      assert.notStrictEqual(board[0], board[1])
+    })
   })
 
   describe("winning", () => {

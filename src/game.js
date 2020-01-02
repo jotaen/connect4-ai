@@ -15,8 +15,17 @@ const Game = function(playerNames, rows, columns) {
 };
 
 Game.prototype.players = function() {
-  return this._players
+  return Object.values(this._players)
 };
+
+Game.prototype.put = function(playerId, colId) {
+  const next = Board.next(colId, this._board)
+  this._board[next][colId] = playerId
+}
+
+Game.prototype.board = function() {
+  return this._board
+}
 
 module.exports = {
   Game

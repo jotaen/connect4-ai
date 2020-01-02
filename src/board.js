@@ -27,7 +27,7 @@ const findWins = R.curry((winningLength, board) => R.compose(
 )(board))
 
 // Number, Number -> [[null]]
-const create = (rows, columns) => R.repeat(R.repeat(null, columns), rows)
+const create = (rows, columns) => R.times(() => R.repeat(null, columns), rows)
 
 // [[any]] -> bool
 const isFilledUp = R.compose(
