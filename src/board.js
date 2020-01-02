@@ -21,6 +21,9 @@ const findWinners = R.curry((winningLength, board) => R.compose(
   R.juxt([horizontalSeqs, verticalSeqs, diagonalDownSeqs, diagonalUpSeqs]),
 )(board))
 
+const create = (rows, columns) => R.repeat(R.repeat(0, columns), rows)
+
 module.exports = {
+  create,
   findWinners
 }

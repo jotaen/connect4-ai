@@ -1,4 +1,4 @@
-const R = require('ramda')
+const Board = require("./board")
 
 const create = (playerNames, rows, columns) => {
   return {
@@ -14,7 +14,7 @@ const create = (playerNames, rows, columns) => {
     },
     columns: columns,
     rows: rows,
-    board: R.repeat(R.repeat(0, columns), rows)
+    board: Board.create(6, 7)
   }
 }
 

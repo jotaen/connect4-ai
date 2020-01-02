@@ -1,5 +1,5 @@
 const assert = require("assert")
-const {findWinners} = require("./board")
+const {create, findWinners} = require("./board")
 
 const assertOk = ({expected, board}) => {
   const winners = findWinners(4, board)
@@ -7,6 +7,16 @@ const assertOk = ({expected, board}) => {
 }
 
 describe("Board", () => {
+  it("initialises board with given dimensions", () => {
+    const rows = 6
+    const columns = 7
+    const board = create(rows, columns)
+    assert.strictEqual(board.length, rows)
+    board.forEach(r => r.forEach(f => {
+      assert.strictEqual(f, 0)
+    }))
+  })
+
   it("finds no winner when board is completely empty", () => {
     const board = [
       [0,0,0,0,0,0,0],

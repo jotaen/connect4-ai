@@ -18,13 +18,5 @@ describe("Game", () => {
         assert.strictEqual(p.id, id)
       })
     })
-
-    it("has a board that is initialised with empty fields", () => {
-      const g = createDefaultGame()
-      assert.strictEqual(g.board.length, 6)
-      g.board.forEach(r => r.forEach(f => {
-        assert.strictEqual(f, 0)
-      }))
-    })
   })
 })
