@@ -1,6 +1,6 @@
 const R = require('ramda')
 
-const create = (playerNames, columns, rows) => {
+const create = (playerNames, rows, columns) => {
   return {
     players: {
       1: {
@@ -14,7 +14,7 @@ const create = (playerNames, columns, rows) => {
     },
     columns: columns,
     rows: rows,
-    board: R.repeat(0, columns*rows)
+    board: R.repeat(R.repeat(0, columns), rows)
   }
 }
 

@@ -1,28 +1,30 @@
 const assert = require("assert")
-const Game = require("./game")
+const {create} = require("./game")
 
 describe("Game", () => {
 
-  const players = ["Sarah", "Martin"]
+  const createDefaultGame = () => {
+    return create(["Sarah", "Martin"], 6, 7)
+  }
 
-  it("has two players with names and subsequent ids", () => {
-    const g = Game.create(players, 6, 7)
-    players.forEach((name, i) => {
-      const id = i+1
-      const p = g.players[id]
-      assert(p)
-      assert.strictEqual(p.name, name)
-      assert.strictEqual(p.id, id)
+  describe("initialisation", () => {
+    it("has two players with names and subsequent ids", () => {
+      const g = createDefaultGame()
+      ;["Sarah", "Martin"].forEach((name, i) => {
+        const id = i+1
+        const p = g.players[id]
+        assert(p)
+        assert.strictEqual(p.name, name)
+        assert.strictEqual(p.id, id)
+      })
     })
-  })
 
-  it("has a board that is initialised with empty fields", () => {
-    const g = Game.create(players, 6, 7)
-    assert.strictEqual(g.columns, 6)
-    assert.strictEqual(g.rows, 7)
-    assert.strictEqual(g.board.length, 42)
-    g.board.forEach(f => {
-      assert.strictEqual(f, 0)
+    it("has a board that is initialised with empty fields", () => {
+      const g = createDefaultGame()
+      assert.strictEqual(g.board.length, 6)
+      g.board.forEach(r => r.forEach(f => {
+        assert.strictEqual(f, 0)
+      }))
     })
   })
 })
