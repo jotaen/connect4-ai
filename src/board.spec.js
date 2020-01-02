@@ -1,8 +1,13 @@
 const assert = require("assert")
-const {hasWon} = require("./board")
+const {findWinners} = require("./board")
+
+const assertOk = ({expected, board}) => {
+  const winners = findWinners(4, board)
+  assert.deepStrictEqual(winners.sort(), expected.sort())
+}
 
 describe("Board", () => {
-  it("is not won when empty", () => {
+  it("finds no winner when board is completely empty", () => {
     const board = [
       [0,0,0,0,0,0,0],
       [0,0,0,0,0,0,0],
@@ -11,131 +16,127 @@ describe("Board", () => {
       [0,0,0,0,0,0,0],
       [0,0,0,0,0,0,0],
     ]
-    assert.strictEqual(hasWon(board), null)
+    assert.strictEqual(findWinners(4, board).length, 0)
   })
 
-  it("is not won when there is no winning sequence", () => {
+  it("finds no winner when there is no winning sequence", () => {
     [
-      [
+      {expected: [], board: [
         [0,0,0,0,0,0,0],
         [0,0,0,0,0,0,0],
         [1,0,0,2,0,0,0],
         [2,0,1,1,0,0,0],
         [2,1,2,1,0,0,0],
         [1,2,1,2,0,0,0],
-      ],
-      [
+      ]},
+      {expected: [], board: [
         [0,1,0,0,0,0,0],
         [0,2,0,0,0,0,0],
         [1,1,0,0,0,0,0],
         [2,2,2,1,0,1,2],
         [2,2,2,1,1,1,2],
         [2,2,2,1,1,1,2],
-      ],
-    ].forEach(board => {
-      assert.strictEqual(hasWon(board), null)
-    })
+      ]},
+    ].forEach(assertOk)
   })
 
-  it("throws if there are two winners present (illegal state)", () => {
+  it("finds winners in horizontal sequences", () => {
     [
-      [ // Horizontal
+      {expected: [1], board: [
+        [0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0],
+        [0,0,1,1,1,1,0],
+      ]},
+      {expected: [2], board: [
+        [0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0],
+        [0,0,0,2,2,2,2],
+        [0,0,0,1,1,1,2],
+        [0,0,0,1,2,2,1],
+        [0,0,2,1,1,1,2],
+      ]},
+      {expected: [2, 1], board: [
         [0,0,0,0,0,0,0],
         [0,0,0,0,0,0,0],
         [0,0,0,0,0,0,0],
         [0,0,0,0,0,0,0],
         [0,0,2,2,2,2,0],
         [0,0,1,1,1,1,0],
-      ],
-      [ // Vertical
+      ]},
+    ].forEach(assertOk)
+  })
+
+  it("finds winners in vertical sequences", () => {
+    [
+      {expected: [1], board: [
+        [0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0],
+        [0,0,1,0,0,0,0],
+        [0,0,1,0,0,0,0],
+        [0,0,1,0,0,0,0],
+        [0,0,1,0,0,0,0],
+      ]},
+      {expected: [2], board: [
+        [0,0,0,0,0,0,0],
+        [0,0,0,0,2,0,0],
+        [0,0,1,0,2,0,0],
+        [0,0,1,0,2,0,0],
+        [0,0,1,2,2,2,1],
+        [0,0,2,2,1,1,2],
+      ]},
+      {expected: [1, 2], board: [
         [0,0,0,0,0,0,0],
         [0,0,0,0,0,0,0],
         [0,0,1,0,0,0,2],
         [0,0,1,0,0,0,2],
         [0,0,1,0,0,0,2],
         [0,0,1,0,0,0,2],
-      ],
-      [ // Diagonal
+      ]},
+    ].forEach(assertOk)
+  })
+
+  it("finds winners in diagonal sequences", () => {
+    [
+      {expected: [1], board: [
+        [0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0],
+        [1,0,0,0,0,0,0],
+        [2,1,0,0,0,0,0],
+        [2,2,1,0,0,0,0],
+        [2,2,2,1,0,0,0],
+      ]},
+      {expected: [2], board: [
+        [0,0,0,0,0,0,0],
+        [0,0,0,0,1,0,0],
+        [0,0,2,0,2,2,0],
+        [0,0,1,0,2,1,0],
+        [0,0,1,2,2,2,1],
+        [0,0,2,2,1,1,2],
+      ]},
+      {expected: [1, 2], board: [
         [0,0,0,0,0,0,0],
         [0,0,0,0,0,0,0],
         [1,0,0,0,0,2,0],
         [2,1,0,0,2,1,0],
         [2,2,1,2,1,1,0],
         [2,2,2,1,1,1,0],
-      ],
-      [ // All
+      ]},
+    ].forEach(assertOk)
+  })
+
+  it("finds all winners in all directions", () => {
+    [
+      {expected: [1, 2, 1], board: [
         [0,0,0,0,0,0,0],
         [2,0,0,0,0,0,0],
         [2,0,0,0,0,1,0],
         [2,0,0,0,1,2,0],
         [2,0,0,1,2,2,0],
         [1,1,1,1,2,2,0],
-      ],
-    ].forEach(board => {
-      assert.throws(() => hasWon(board))
-    })
-  })
-
-  it("is won there is a horizontal winning sequence", () => {
-    const board1 = [
-      [0,0,0,0,0,0,0],
-      [0,0,0,0,0,0,0],
-      [0,0,0,0,0,0,0],
-      [0,0,0,0,0,0,0],
-      [0,0,0,0,0,0,0],
-      [0,0,1,1,1,1,0],
-    ]
-    assert.strictEqual(hasWon(board1), 1)
-    const board2 = [
-      [0,0,0,0,0,0,0],
-      [0,0,0,0,0,0,0],
-      [0,0,0,2,2,2,2],
-      [0,0,0,1,1,1,2],
-      [0,0,0,1,2,2,1],
-      [0,0,2,1,1,1,2],
-    ]
-    assert.strictEqual(hasWon(board2), 2)
-  })
-
-  it("is won there is a vertical winning sequence", () => {
-    const board1 = [
-      [0,0,0,0,0,0,0],
-      [0,0,0,0,0,0,0],
-      [0,0,1,0,0,0,0],
-      [0,0,1,0,0,0,0],
-      [0,0,1,0,0,0,0],
-      [0,0,1,0,0,0,0],
-    ]
-    assert.strictEqual(hasWon(board1), 1)
-    const board2 = [
-      [0,0,0,0,0,0,0],
-      [0,0,0,0,2,0,0],
-      [0,0,1,0,2,0,0],
-      [0,0,1,0,2,0,0],
-      [0,0,1,2,2,2,1],
-      [0,0,2,2,1,1,2],
-    ]
-    assert.strictEqual(hasWon(board2), 2)
-  })
-
-  it("is won there is a diagonal winning sequence (in either direction)", () => {
-    const board1 = [
-      [0,0,0,0,0,0,0],
-      [0,0,0,0,0,0,0],
-      [1,0,0,0,0,0,0],
-      [2,1,0,0,0,0,0],
-      [2,2,1,0,0,0,0],
-      [2,2,2,1,0,0,0],
-    ]
-    assert.strictEqual(hasWon(board1), 1)
-    const board2 = [
-      [0,0,0,0,0,0,0],
-      [0,0,0,0,1,0,0],
-      [0,0,2,0,2,2,0],
-      [0,0,1,0,2,1,0],
-      [0,0,1,2,2,2,1],
-      [0,0,2,2,1,1,2],
-    ]
-    assert.strictEqual(hasWon(board2), 2)
+      ]}
+    ].forEach(assertOk)
   })
 })
