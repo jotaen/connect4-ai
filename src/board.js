@@ -26,9 +26,17 @@ const findWins = R.curry((winningLength, board) => R.compose(
   R.juxt([horizontalSeqs, verticalSeqs, diagonalDownSeqs, diagonalUpSeqs]),
 )(board))
 
+// Number, Number -> [[null]]
 const create = (rows, columns) => R.repeat(R.repeat(null, columns), rows)
+
+// [[any]] -> bool
+const isFilledUp = R.compose(
+  R.none(R.isNil),
+  R.unnest,
+)
 
 module.exports = {
   create,
-  findWins
+  findWins,
+  isFilledUp
 }
