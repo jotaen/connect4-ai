@@ -1,10 +1,11 @@
 const R = require("ramda")
 const F = require("../lib/F")
 
-// [[id]] -> [id]
+// [id] -> [id]
 const reduceToWinners = winningLength => R.compose(
+  R.filter(x => x !== 0),
   R.unnest,
-  R.filter(xs => xs.length === 1 && xs[0] !== 0 ? xs[0] : false),
+  R.filter(xs => xs.length === 1),
   R.map(R.uniq),
   R.aperture(winningLength),
 )
