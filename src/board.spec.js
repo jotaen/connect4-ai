@@ -1,5 +1,5 @@
 const assert = require("assert")
-const {create, findWins, isFilledUp} = require("./board")
+const {create, findWins, isFilledUp, next} = require("./board")
 
 const assertWins = ({expected, board}) => {
   const winners = findWins(4, board)
@@ -201,6 +201,38 @@ describe("Board", () => {
         ]},
       ].forEach(({expected, board}) => {
         const result = isFilledUp(board)
+        assert.strictEqual(result, expected)
+      })
+    })
+
+    it("gets next available position in a column", () => {
+      [
+        {col: 3, expected: 5, board: [
+          [X,X,X,X,X,X,X],
+          [X,X,X,X,X,X,X],
+          [X,X,X,X,X,X,X],
+          [X,X,X,X,X,X,X],
+          [X,X,X,X,X,X,X],
+          [X,X,X,X,X,X,X],
+        ]},
+        {col: 3, expected: 3, board: [
+          [1,X,X,X,X,1,X],
+          [2,X,X,X,X,2,X],
+          [2,X,X,X,X,1,X],
+          [2,X,X,X,1,2,X],
+          [2,X,X,1,2,2,X],
+          [1,1,1,1,2,2,X],
+        ]},
+        {col: 0, expected: null, board: [
+          [1,X,X,X,X,1,X],
+          [2,X,X,X,X,2,X],
+          [2,X,X,X,X,1,X],
+          [2,X,X,X,1,2,X],
+          [2,X,X,1,2,2,X],
+          [1,1,1,1,2,2,X],
+        ]},
+      ].forEach(({col, expected, board}) => {
+        const result = next(col, board)
         assert.strictEqual(result, expected)
       })
     })

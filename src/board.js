@@ -35,8 +35,17 @@ const isFilledUp = R.compose(
   R.unnest,
 )
 
+// Number -> [[any]] -> bool
+const next = R.curry((colId, board) => R.compose(
+  i => i === -1 ? null : i,
+  R.findLastIndex(R.isNil),
+  R.nth(colId),
+  R.transpose,
+)(board))
+
 module.exports = {
   create,
   findWins,
-  isFilledUp
+  isFilledUp,
+  next,
 }
