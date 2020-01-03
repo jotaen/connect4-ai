@@ -27,13 +27,28 @@ describe("Game", () => {
   describe("turns", () => {
     it("returns the id of the next player (round robin)", () => {
       const g = defaultGame()
-      assert.strictEqual(g.nextPlayer(), 1)
-      g.put(2, 4)
-      assert.strictEqual(g.nextPlayer(), 2)
-      g.put(2, 4)
-      assert.strictEqual(g.nextPlayer(), 1)
-      g.put(1, 3)
-      assert.strictEqual(g.nextPlayer(), 2)
+      let nextPlayer
+
+      nextPlayer = g.nextPlayer()
+      assert.strictEqual(nextPlayer, 1)
+      g.put(nextPlayer, 4)
+      nextPlayer = g.nextPlayer()
+      assert.strictEqual(nextPlayer, 2)
+      g.put(nextPlayer, 4)
+      nextPlayer = g.nextPlayer()
+      assert.strictEqual(nextPlayer, 1)
+      g.put(nextPlayer, 3)
+      nextPlayer = g.nextPlayer()
+      assert.strictEqual(nextPlayer, 2)
+    })
+
+    it("checks whether the player is next or not", () => {
+      const g = defaultGame()
+
+      assert.doesNotThrow(() => g.put(1, 4))
+      assert.throws(() => g.put(1, 4),)
+      assert.doesNotThrow(() => g.put(2, 4))
+      assert.throws(() => g.put(2, 4),)
     })
 
     it("is possible to put “chips” into columns", () => {

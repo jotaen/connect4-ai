@@ -11,6 +11,9 @@ Game.prototype.players = function() {
 };
 
 Game.prototype.put = function(playerId, colId) {
+  if (this._nextPlayerId !== playerId) {
+    throw "NOT_NEXT"
+  }
   const nextRow = Board.next(colId, this._board)
   this._board[nextRow][colId] = playerId
   this._nextPlayerId = (this._nextPlayerId === this._playerIds[this._playerIds.length-1]) ?
