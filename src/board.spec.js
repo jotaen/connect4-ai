@@ -1,5 +1,5 @@
 const assert = require("assert")
-const {create, findWins, isFilledUp, next} = require("./board")
+const {create, findWins, freeSlots, nextInSlot} = require("./board")
 
 const assertWins = ({expected, board, winningLength = 4}) => {
   const winners = findWins(winningLength, board)
@@ -175,9 +175,9 @@ describe("Board", () => {
   })
 
   describe("status", () => {
-    it("states whether there are empty fields left", () => {
+    it("returns free slots", () => {
       [
-        {expected: false, board: [
+        {expected: [0, 1, 2, 3, 4, 5, 6], board: [
           [X,X,X,X,X,X,X],
           [X,X,X,X,X,X,X],
           [X,X,X,X,X,X,X],
@@ -185,15 +185,7 @@ describe("Board", () => {
           [X,X,X,X,X,X,X],
           [X,X,X,X,X,X,X],
         ]},
-        {expected: false, board: [
-          [X,X,X,X,X,X,X],
-          [X,X,X,X,X,X,X],
-          [X,X,X,X,X,X,X],
-          [X,X,X,X,X,X,X],
-          [X,X,X,X,X,X,X],
-          [X,X,X,X,X,X,1],
-        ]},
-        {expected: false, board: [
+        {expected: [0, 1, 2, 3, 4, 5, 6], board: [
           [X,X,X,X,X,X,X],
           [2,X,X,X,X,X,X],
           [2,X,X,X,X,1,X],
@@ -201,15 +193,15 @@ describe("Board", () => {
           [2,X,X,1,2,2,X],
           [1,1,1,1,2,2,X],
         ]},
-        {expected: false, board: [
-          [X,2,1,1,1,1,2],
+        {expected: [0, 3, 4, 5], board: [
+          [X,2,1,X,X,X,2],
           [2,1,1,1,1,2,2],
           [2,2,2,2,2,1,2],
           [2,1,1,1,1,2,1],
           [2,1,2,1,2,2,2],
           [1,1,1,1,2,2,1],
         ]},
-        {expected: true, board: [
+        {expected: [], board: [
           [1,2,1,1,1,1,1],
           [2,1,1,1,1,2,2],
           [2,2,2,2,2,1,2],
@@ -218,8 +210,8 @@ describe("Board", () => {
           [1,1,1,1,2,2,1],
         ]},
       ].forEach(({expected, board}) => {
-        const result = isFilledUp(board)
-        assert.strictEqual(result, expected)
+        const result = freeSlots(board)
+        assert.deepStrictEqual(result, expected)
       })
     })
 
@@ -250,7 +242,7 @@ describe("Board", () => {
           [1,1,1,1,2,2,X],
         ]},
       ].forEach(({col, expected, board}) => {
-        const result = next(col, board)
+        const result = nextInSlot(col, board)
         assert.strictEqual(result, expected)
       })
     })

@@ -27,25 +27,27 @@ const findWins = R.curry((winningLength, board) => R.compose(
 )(board))
 
 // Number, Number -> [[null]]
-const create = (rows, columns) => R.times(() => R.repeat(null, columns), rows)
+const create = (rows, slots) => R.times(() => R.repeat(null, slots), rows)
 
-// [[any]] -> bool
-const isFilledUp = R.compose(
-  R.none(R.isNil),
-  R.unnest,
+// [[any]] -> [Number]
+const freeSlots = R.compose(
+  R.map(R.nth(0)),
+  R.filter(p => R.isNil(p[1])),
+  F.mapIndexed((v, i) => R.pair(i, v)),
+  R.nth(0),
 )
 
 // Number -> [[any]] -> bool
-const next = R.curry((colId, board) => R.compose(
+const nextInSlot = R.curry((slotNr, board) => R.compose(
   i => i === -1 ? null : i,
   R.findLastIndex(R.isNil),
-  R.nth(colId),
+  R.nth(slotNr),
   R.transpose,
 )(board))
 
 module.exports = {
   create,
   findWins,
-  isFilledUp,
-  next,
+  freeSlots,
+  nextInSlot,
 }
