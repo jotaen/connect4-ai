@@ -2,7 +2,7 @@ const assert = require("assert")
 const {create, findWins, freeSlots, nextInSlot} = require("./board")
 
 const assertWins = ({expected, board, winningLength = 4}) => {
-  const winners = findWins(winningLength, board)
+  const winners = findWins(winningLength, board).map(fs => fs[0].value)
   assert.deepStrictEqual(winners.sort(), expected.sort())
 }
 
@@ -233,7 +233,7 @@ describe("Board", () => {
           [2,X,X,1,2,2,X],
           [1,1,1,1,2,2,X],
         ]},
-        {col: 0, expected: null, board: [
+        {col: 0, expected: undefined, board: [
           [1,X,X,X,X,1,X],
           [2,X,X,X,X,2,X],
           [2,X,X,X,X,1,X],

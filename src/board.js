@@ -1,45 +1,63 @@
 const R = require("ramda")
 const F = require("../lib/F")
 
-// [id] -> id|null
-const singularWinnerOrNull = R.compose(
-  xs => xs.length === 1 && xs[0] !== null ? xs[0] : null,
-  R.uniq,
+// field :: {row: Number, slot: Number, value: id}
+
+const NEUTRAL = null
+const isNeutral = R.equals(NEUTRAL)
+
+// [field] -> bool
+const isWinningSequence = R.compose(
+  R.both(F.hasLength(1), R.none(isNeutral)),
+  R.uniq(),
+  R.map(R.prop('value')),
 )
 
-// [id] -> [id]
+// [field] -> [[field]]
 const reduceToWinners = winningLength => R.compose(
-  R.reject(R.isNil),
-  R.chain(singularWinnerOrNull),
+  R.filter(isWinningSequence),
   R.aperture(winningLength),
 )
 
-const horizontalSeqs = R.identity
-const verticalSeqs = R.transpose
-const diagonalDownSeqs = F.transposeDiagonal
-const diagonalUpSeqs = R.compose(F.transposeDiagonal, R.reverse)
+// [field] -> [field]
+const seq = {
+  horizontal: R.identity,
+  vertical: R.transpose,
+  diagonalDown: F.transposeDiagonal,
+  diagonalUp: R.compose(F.transposeDiagonal, R.reverse),
+}
 
-// Number -> [[id]] -> [id]
+// [[any]] -> [[field]]
+const boardValuesToFields = F.mapIndexed((ss, row) =>
+  F.mapIndexed((value, slot) => ({row, slot, value}), ss))
+
+// [[field]] -> [[field]]
+const allEligibleSeqs = R.compose(
+  R.unnest,
+  R.juxt([seq.horizontal, seq.vertical, seq.diagonalDown, seq.diagonalUp])
+)
+
+// Number -> [[any]] -> [[field]]
 const findWins = R.curry((winningLength, board) => R.compose(
   R.chain(reduceToWinners(winningLength)),
-  R.unnest,
-  R.juxt([horizontalSeqs, verticalSeqs, diagonalDownSeqs, diagonalUpSeqs]),
+  allEligibleSeqs,
+  boardValuesToFields,
 )(board))
 
-// Number, Number -> [[null]]
-const create = (rows, slots) => R.times(() => R.repeat(null, slots), rows)
+// Number, Number -> [[NEUTRAL]]
+const create = (rows, slots) => R.times(() => R.repeat(NEUTRAL, slots), rows)
 
 // [[any]] -> [Number]
 const freeSlots = R.compose(
   R.map(R.nth(0)),
-  R.filter(p => R.isNil(p[1])),
+  R.filter(p => isNeutral(p[1])),
   F.mapIndexed((v, i) => R.pair(i, v)),
   R.nth(0),
 )
 
 // Number -> [[any]] -> bool
 const nextInSlot = R.curry((slotNr, board) => R.compose(
-  i => i === -1 ? null : i,
+  i => i === -1 ? undefined : i,
   R.findLastIndex(R.isNil),
   R.nth(slotNr),
   R.transpose,
