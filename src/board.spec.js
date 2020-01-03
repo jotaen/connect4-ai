@@ -1,6 +1,6 @@
 const {Either} = require("ramda-fantasy")
 const assert = require("assert")
-const {create, findWins, freeSlots, nextInSlot} = require("./board")
+const {create, findWins, freeSlots, putIntoSlot} = require("./board")
 
 const assertWins = ({expected, board, winningLength = 4}) => {
   const winners = findWins(winningLength, board).map(fs => fs[0].value)
@@ -216,9 +216,9 @@ describe("Board", () => {
       })
     })
 
-    it("gets next available position in a column", () => {
+    it("puts value into slot (if possible) and returns new board", () => {
       [
-        {col: 3, expected: [true, 5], board: [
+        {slot: 3, value: 1, expected: {row: 5, slot: 3, value: 1}, board: [
           [X,X,X,X,X,X,X],
           [X,X,X,X,X,X,X],
           [X,X,X,X,X,X,X],
@@ -226,7 +226,7 @@ describe("Board", () => {
           [X,X,X,X,X,X,X],
           [X,X,X,X,X,X,X],
         ]},
-        {col: 3, expected: [true, 3], board: [
+        {slot: 4, value: 3, expected: {row: 2, slot: 4, value: 3}, board: [
           [1,X,X,X,X,1,X],
           [2,X,X,X,X,2,X],
           [2,X,X,X,X,1,X],
@@ -234,7 +234,7 @@ describe("Board", () => {
           [2,X,X,1,2,2,X],
           [1,1,1,1,2,2,X],
         ]},
-        {col: 0, expected: [false, "SLOT_IS_FULL"], board: [
+        {slot: 0, value: 1, expected: "SLOT_IS_FULL", board: [
           [1,X,X,X,X,1,X],
           [2,X,X,X,X,2,X],
           [2,X,X,X,X,1,X],
@@ -242,11 +242,14 @@ describe("Board", () => {
           [2,X,X,1,2,2,X],
           [1,1,1,1,2,2,X],
         ]},
-      ].forEach(({col, expected, board}) => {
-        const result = nextInSlot(col, board)
-        assert.strictEqual(Either.isRight(result), expected[0])
-        const check = v => assert.strictEqual(v, expected[1])
-        result.either(check, check)
+      ].forEach(({slot, value, expected, board}) => {
+        const result = putIntoSlot(value, slot, board)
+        result.either(error => {
+          assert.strictEqual(error, expected)
+        }, newBoard => {
+          assert.strictEqual(board[expected.row][expected.slot], X)
+          assert.strictEqual(newBoard[expected.row][expected.slot], expected.value)
+        })
       })
     })
   })

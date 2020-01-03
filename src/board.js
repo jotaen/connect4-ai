@@ -56,11 +56,19 @@ const freeSlots = R.compose(
   R.nth(0),
 )
 
+const place = (field, board) => {
+  const newBoard = R.clone(board)
+  newBoard[field.row][field.slot] = field.value
+  return newBoard
+}
+
 // Number -> [[any]] -> bool
-const nextInSlot = R.curry((slotNr, board) => R.compose(
-  i => i === -1 ? Either.Left("SLOT_IS_FULL") : Either.Right(i),
+const putIntoSlot = R.curry((value, slot, board) => R.compose(
+  row => row === -1 ?
+    Either.Left("SLOT_IS_FULL") :
+    Either.Right(place({row, slot, value}, board)),
   R.findLastIndex(R.isNil),
-  R.nth(slotNr),
+  R.nth(slot),
   R.transpose,
 )(board))
 
@@ -68,5 +76,5 @@ module.exports = {
   create,
   findWins,
   freeSlots,
-  nextInSlot,
+  putIntoSlot,
 }
