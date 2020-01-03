@@ -1,5 +1,4 @@
 const R = require("ramda")
-const {Either} = require("ramda-fantasy")
 const F = require("../lib/F")
 
 const NEUTRAL = null
@@ -8,16 +7,10 @@ const isNeutral = R.equals(NEUTRAL)
 const field = (row, slot, value) => ({ row, slot, value })
 
 // [field] -> bool
-const isWinningSequence = R.compose(
+const allValuesEqual = R.compose(
   R.both(F.hasLength(1), R.none(isNeutral)),
   R.uniq(),
   R.map(R.prop('value')),
-)
-
-// [field] -> [[field]]
-const reduceToWinners = winningLength => R.compose(
-  R.filter(isWinningSequence),
-  R.aperture(winningLength),
 )
 
 // [field] -> [field]
@@ -38,10 +31,16 @@ const allEligibleSeqs = R.compose(
   R.juxt([seq.horizontal, seq.vertical, seq.diagonalDown, seq.diagonalUp])
 )
 
+const toCandidates = winningLength => R.compose(
+  R.chain(R.aperture(winningLength)),
+  R.filter(fs => fs.length >= winningLength),
+)
+
 // Number -> [[any]] -> [[field]]
 const findWin = R.curry((winningLength, board) => R.compose(
-  cs => cs.length > 0 ? cs[0] : null,
-  R.chain(reduceToWinners(winningLength)),
+  w => w || null,
+  R.find(allValuesEqual),
+  toCandidates(winningLength),
   allEligibleSeqs,
   boardValuesToFields,
 )(board))
@@ -65,9 +64,7 @@ const place = (field, board) => R.compose(
 
 // Number -> [[any]] -> bool
 const putIntoSlot = R.curry((value, slot, board) => R.compose(
-  row => row === -1 ?
-    Either.Left("SLOT_IS_FULL") :
-    Either.Right(place({row, slot, value}, board)),
+  row => row === -1 ? null : place({row, slot, value}, board),
   R.findLastIndex(R.isNil),
   R.nth(slot),
   R.transpose,

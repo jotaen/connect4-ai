@@ -1,4 +1,3 @@
-const {Either} = require("ramda-fantasy")
 const assert = require("assert")
 const {create, field, findWin, freeSlots, putIntoSlot} = require("./board")
 
@@ -188,7 +187,7 @@ describe("Board", () => {
           [2,X,X,1,2,2,X],
           [1,1,1,1,2,2,X],
         ]},
-        {slot: 0, value: 1, expected: "SLOT_IS_FULL", board: [
+        {slot: 0, value: 1, expected: null, board: [
           [1,X,X,X,X,1,X],
           [2,X,X,X,X,2,X],
           [2,X,X,X,X,1,X],
@@ -198,11 +197,11 @@ describe("Board", () => {
         ]},
       ].forEach(({slot, value, expected, board}) => {
         const result = putIntoSlot(value, slot, board)
-        result.either(error => {
-          assert.strictEqual(error, expected)
-        }, newBoard => {
-          assert.strictEqual(newBoard[expected.row][expected.slot], expected.value)
-        })
+        if (expected === null) {
+          assert.strictEqual(result, expected)
+        } else {
+          assert.strictEqual(result[expected.row][expected.slot], expected.value)
+        }
       })
     })
 
@@ -215,7 +214,8 @@ describe("Board", () => {
         [X,X,X,X,X,X,X],
         [X,X,X,X,X,X,X],
       ]
-      const newBoard = putIntoSlot(true, 1, board).value
+      const newBoard = putIntoSlot(true, 1, board)
+
       // old board is not affected by new board’s changes:
       assert.strictEqual(board[0][1], X)
 

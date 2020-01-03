@@ -14,12 +14,10 @@ Game.prototype.tryPut = function(playerId, slotId) {
   if (this._nextPlayerId !== playerId) {
     throw "NOT_NEXT"
   }
-  Board.putIntoSlot(playerId, slotId, this._board)
-    .either(msg => {throw msg },
-            nextBoard => this._advance(nextBoard))
-}
-
-Game.prototype._advance = function(nextBoard) {
+  const nextBoard = Board.putIntoSlot(playerId, slotId, this._board)
+  if (nextBoard === null) {
+    throw "SLOT_IS_FULL"
+  }
   this._board = nextBoard
   const isLastPlayer = (this._nextPlayerId === this._playerIds[this._playerIds.length-1])
   this._nextPlayerId = isLastPlayer ? this._playerIds[0] : this._nextPlayerId + 1
