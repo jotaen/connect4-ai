@@ -56,11 +56,10 @@ const freeSlots = R.compose(
   R.nth(0),
 )
 
-const place = (field, board) => {
-  const newBoard = R.clone(board)
-  newBoard[field.row][field.slot] = field.value
-  return newBoard
-}
+// field, [[any]] -> [[any]]
+const place = (field, board) => R.set(
+  R.lensPath([field.row, field.slot]), field.value
+)(board)
 
 // Number -> [[any]] -> bool
 const putIntoSlot = R.curry((value, slot, board) => R.compose(
