@@ -2,10 +2,10 @@ const R = require("ramda")
 const {Either} = require("ramda-fantasy")
 const F = require("../lib/F")
 
-// field :: {row: Number, slot: Number, value: id}
-
 const NEUTRAL = null
 const isNeutral = R.equals(NEUTRAL)
+
+const field = (row, slot, value) => ({ row, slot, value })
 
 // [field] -> bool
 const isWinningSequence = R.compose(
@@ -39,7 +39,8 @@ const allEligibleSeqs = R.compose(
 )
 
 // Number -> [[any]] -> [[field]]
-const findWins = R.curry((winningLength, board) => R.compose(
+const findWin = R.curry((winningLength, board) => R.compose(
+  cs => cs.length > 0 ? cs[0] : null,
   R.chain(reduceToWinners(winningLength)),
   allEligibleSeqs,
   boardValuesToFields,
@@ -74,7 +75,8 @@ const putIntoSlot = R.curry((value, slot, board) => R.compose(
 
 module.exports = {
   create,
-  findWins,
+  field,
+  findWin,
   freeSlots,
   putIntoSlot,
 }
