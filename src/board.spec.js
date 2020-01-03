@@ -247,10 +247,27 @@ describe("Board", () => {
         result.either(error => {
           assert.strictEqual(error, expected)
         }, newBoard => {
-          assert.strictEqual(board[expected.row][expected.slot], X)
           assert.strictEqual(newBoard[expected.row][expected.slot], expected.value)
         })
       })
+    })
+
+    it("creates a fresh board when putting something", () => {
+      const board = [
+        [X,X,X,X,X,X,X],
+        [X,X,X,X,X,X,X],
+        [X,X,X,X,X,X,X],
+        [X,X,X,X,X,X,X],
+        [X,X,X,X,X,X,X],
+        [X,X,X,X,X,X,X],
+      ]
+      const newBoard = putIntoSlot(true, 1, board).value
+      // old board is not affected by new board’s changes:
+      assert.strictEqual(board[0][1], X)
+
+      // new board is not affected by old board’s changes:
+      board[4][4] = false
+      assert.strictEqual(newBoard[4][4], X)
     })
   })
 

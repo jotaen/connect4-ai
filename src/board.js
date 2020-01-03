@@ -57,8 +57,9 @@ const freeSlots = R.compose(
 )
 
 // field, [[any]] -> [[any]]
-const place = (field, board) => R.set(
-  R.lensPath([field.row, field.slot]), field.value
+const place = (field, board) => R.compose(
+  R.set(R.lensPath([field.row, field.slot]), field.value),
+  R.clone,
 )(board)
 
 // Number -> [[any]] -> bool
