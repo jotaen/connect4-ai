@@ -10,12 +10,20 @@ Game.prototype.players = function() {
   return this._playerIds
 };
 
-Game.prototype.put = function(playerId, colId) {
+Game.prototype.tryPut = function(playerId, slotId) {
   if (this._nextPlayerId !== playerId) {
     throw "NOT_NEXT"
   }
-  const nextRow = Board.nextInSlot(colId, this._board)
-  this._board[nextRow][colId] = playerId
+  Board.nextInSlot(slotId, this._board)
+    .either(msg => {
+      throw msg 
+    }, nextRowId => {
+      this._advance(nextRowId, slotId, playerId)
+    })
+}
+
+Game.prototype._advance = function(rowId, slotId, playerId) {
+  this._board[rowId][slotId] = playerId
   this._nextPlayerId = (this._nextPlayerId === this._playerIds[this._playerIds.length-1]) ?
     this._playerIds[0] : this._nextPlayerId + 1
 }

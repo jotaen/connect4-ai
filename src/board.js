@@ -1,4 +1,5 @@
 const R = require("ramda")
+const {Either} = require("ramda-fantasy")
 const F = require("../lib/F")
 
 // field :: {row: Number, slot: Number, value: id}
@@ -57,7 +58,7 @@ const freeSlots = R.compose(
 
 // Number -> [[any]] -> bool
 const nextInSlot = R.curry((slotNr, board) => R.compose(
-  i => i === -1 ? undefined : i,
+  i => i === -1 ? Either.Left("SLOT_IS_FULL") : Either.Right(i),
   R.findLastIndex(R.isNil),
   R.nth(slotNr),
   R.transpose,

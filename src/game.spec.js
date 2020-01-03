@@ -31,13 +31,13 @@ describe("Game", () => {
 
       nextPlayer = g.nextPlayer()
       assert.strictEqual(nextPlayer, 1)
-      g.put(nextPlayer, 4)
+      g.tryPut(nextPlayer, 4)
       nextPlayer = g.nextPlayer()
       assert.strictEqual(nextPlayer, 2)
-      g.put(nextPlayer, 4)
+      g.tryPut(nextPlayer, 4)
       nextPlayer = g.nextPlayer()
       assert.strictEqual(nextPlayer, 1)
-      g.put(nextPlayer, 3)
+      g.tryPut(nextPlayer, 3)
       nextPlayer = g.nextPlayer()
       assert.strictEqual(nextPlayer, 2)
     })
@@ -45,15 +45,15 @@ describe("Game", () => {
     it("checks whether the player is next or not", () => {
       const g = defaultGame()
 
-      assert.doesNotThrow(() => g.put(1, 4))
-      assert.throws(() => g.put(1, 4),)
-      assert.doesNotThrow(() => g.put(2, 4))
-      assert.throws(() => g.put(2, 4),)
+      assert.doesNotThrow(() => g.tryPut(1, 4))
+      assert.throws(() => g.tryPut(1, 4),)
+      assert.doesNotThrow(() => g.tryPut(2, 4))
+      assert.throws(() => g.tryPut(2, 4),)
     })
 
-    it("is possible to put “chips” into columns", () => {
+    it("is possible to put “chips” into slots", () => {
       const g = defaultGame()
-      g.put(g.nextPlayer(), 0)
+      g.tryPut(g.nextPlayer(), 0)
       assert.deepStrictEqual(g.board(), [
         [X,X,X,X,X,X,X],
         [X,X,X,X,X,X,X],
@@ -62,7 +62,7 @@ describe("Game", () => {
         [X,X,X,X,X,X,X],
         [1,X,X,X,X,X,X],
       ])
-      g.put(g.nextPlayer(), 0)
+      g.tryPut(g.nextPlayer(), 0)
       assert.deepStrictEqual(g.board(), [
         [X,X,X,X,X,X,X],
         [X,X,X,X,X,X,X],
@@ -71,7 +71,7 @@ describe("Game", () => {
         [2,X,X,X,X,X,X],
         [1,X,X,X,X,X,X],
       ])
-      g.put(g.nextPlayer(), 5)
+      g.tryPut(g.nextPlayer(), 5)
       assert.deepStrictEqual(g.board(), [
         [X,X,X,X,X,X,X],
         [X,X,X,X,X,X,X],
@@ -80,6 +80,17 @@ describe("Game", () => {
         [2,X,X,X,X,X,X],
         [1,X,X,X,X,1,X],
       ])
+    })
+
+    it("is not possible to overfill slots", () => {
+      const g = defaultGame()
+      g.tryPut(g.nextPlayer(), 0)
+      g.tryPut(g.nextPlayer(), 0)
+      g.tryPut(g.nextPlayer(), 0)
+      g.tryPut(g.nextPlayer(), 0)
+      g.tryPut(g.nextPlayer(), 0)
+      g.tryPut(g.nextPlayer(), 0)
+      assert.throws(() => g.tryPut(g.nextPlayer(), 0))
     })
   })
 })

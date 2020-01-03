@@ -8,6 +8,7 @@
   "license": "",
   "dependencies": {
     "mocha": "^6.2.2",
-    "ramda": "^0.26.1"
+    "ramda": "^0.26.1",
+    "ramda-fantasy": "^0.8.0"
   }
 }

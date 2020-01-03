@@ -1,3 +1,4 @@
+const {Either} = require("ramda-fantasy")
 const assert = require("assert")
 const {create, findWins, freeSlots, nextInSlot} = require("./board")
 
@@ -217,7 +218,7 @@ describe("Board", () => {
 
     it("gets next available position in a column", () => {
       [
-        {col: 3, expected: 5, board: [
+        {col: 3, expected: [true, 5], board: [
           [X,X,X,X,X,X,X],
           [X,X,X,X,X,X,X],
           [X,X,X,X,X,X,X],
@@ -225,7 +226,7 @@ describe("Board", () => {
           [X,X,X,X,X,X,X],
           [X,X,X,X,X,X,X],
         ]},
-        {col: 3, expected: 3, board: [
+        {col: 3, expected: [true, 3], board: [
           [1,X,X,X,X,1,X],
           [2,X,X,X,X,2,X],
           [2,X,X,X,X,1,X],
@@ -233,7 +234,7 @@ describe("Board", () => {
           [2,X,X,1,2,2,X],
           [1,1,1,1,2,2,X],
         ]},
-        {col: 0, expected: undefined, board: [
+        {col: 0, expected: [false, "SLOT_IS_FULL"], board: [
           [1,X,X,X,X,1,X],
           [2,X,X,X,X,2,X],
           [2,X,X,X,X,1,X],
@@ -243,7 +244,9 @@ describe("Board", () => {
         ]},
       ].forEach(({col, expected, board}) => {
         const result = nextInSlot(col, board)
-        assert.strictEqual(result, expected)
+        assert.strictEqual(Either.isRight(result), expected[0])
+        const check = v => assert.strictEqual(v, expected[1])
+        result.either(check, check)
       })
     })
   })
