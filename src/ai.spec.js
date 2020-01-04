@@ -7,7 +7,7 @@ const a = 1 // ai
 const assertNextMove = t => {
   const res = nextSlot(t.winningLength, [a, 0], t.board)
   if ("iterations" in t) {
-    assert.ok(res.iterations <= t.iterations)
+    assert.strictEqual(res.iterations, t.iterations)
   }
   assert.strictEqual(res.nextSlot, t.expected)
 }
