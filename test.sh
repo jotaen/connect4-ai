@@ -1,3 +1,3 @@
 #!/bin/sh
 
-./node_modules/.bin/mocha ${@} src
+./node_modules/.bin/mocha ${@} src lib
