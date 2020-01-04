@@ -3,25 +3,41 @@ const R = require("ramda")
 const {freeSlots, putIntoSlot, findWin} = require("./board")
 
 // any -> [[any]] -> [[[any]]]
-const nextBoards = (board, player) => R.map(s => [s, putIntoSlot(player, s, board)])
+const nextBoards = (board, player) => R.map(slot =>
+  ({slot, nextBoard: putIntoSlot(player, slot, board)}))
 
 // ([any], Number) -> any
 const playerOnTurn = (players, i) => players[i%players.length]
 
-// ... -> [Number, Number] | undefined
-const minimax = (stats, winningLength, board, slotsToCheck, players, i) => R.compose(
-  F.findMax(p => p[1]),
-  R.map(p => {
-    const behaveFactor = (i%players.length === 0) ? 1 : -1
-    if (findWin(winningLength, p[1])) {
-      return [p[0], 1*behaveFactor] // Game is won
-    }
-    const nextSlots = freeSlots(p[1])
-    if (nextSlots.length > 0) {
-      // Continue to search:
-      return minimax(stats, winningLength, p[1], nextSlots, players, i+1)
+// ([any], Number) -> Number
+const isMax = (players, i) => i%players.length === 0
+
+// (Number, Number) -> evaluation
+const evaluation = (slot, score) => ({slot, score})
+
+// [evaluation] -> evaluation
+const decideMax = F.findMax(R.prop("score"))
+
+// [evaluation] -> evaluation
+const decideOpponent = F.findMin(R.prop("score"))
+
+// (...) -> evaluation
+const evaluate = (stats, winningLength, board, slotsToCheck, players, i) => R.compose(
+  isMax(players, i) ? decideMax : decideOpponent,
+  R.map(({slot, nextBoard}) => {
+    if (findWin(winningLength, nextBoard)) {
+      // Game ends with win/lose:
+      return evaluation(slot, isMax(players, i) ? 1 : -1)
     } else {
-      return [p[0], 0] // Game ends with draw
+      const nextSlots = freeSlots(nextBoard)
+      if (nextSlots.length > 0) {
+        // Game still open, continue searching:
+        const bs = evaluate(stats, winningLength, nextBoard, nextSlots, players, i+1)
+        return evaluation(slot, bs.score)
+      } else {
+        // Game ends with draw:
+        return evaluation(slot, 0)
+      }
     }
   }),
   nextBoards(board, playerOnTurn(players, i)),
@@ -33,10 +49,9 @@ const nextSlot = (winningLength, players, board) => {
   const stats = {
     iterations: 0
   }
-  const p = minimax(stats, winningLength, board, freeSlots(board), players, 0)
+  const res = evaluate(stats, winningLength, board, freeSlots(board), players, 0)
   return {
-    nextSlot: p[0],
-    value: p[1],
+    ...res,
     ...stats,
   }
 }
