@@ -1,14 +1,17 @@
 const assert = require("assert")
 const { Game } = require("./game")
+const { Player } = require("./player")
 
-const defaultGame = () => new Game([1, 2], 6, 7)
+const player1 = Object.freeze(new Player(1))
+const player2 = Object.freeze(new Player(2))
+const defaultGame = () => new Game([player1, player2], 6, 7)
 const X = null
 
 describe("Game", () => {
   describe("initialisation", () => {
     it("has players", () => {
       const g = defaultGame()
-      assert.deepStrictEqual(g.players(), [1, 2])
+      assert.deepStrictEqual(g.players().map(p => p.id()), [1, 2])
     })
 
     it("has an empty board", () => {
@@ -30,25 +33,25 @@ describe("Game", () => {
       let nextPlayer
 
       nextPlayer = g.nextPlayer()
-      assert.strictEqual(nextPlayer, 1)
+      assert.strictEqual(nextPlayer.id(), 1)
       g.tryPut(nextPlayer, 4)
       nextPlayer = g.nextPlayer()
-      assert.strictEqual(nextPlayer, 2)
+      assert.strictEqual(nextPlayer.id(), 2)
       g.tryPut(nextPlayer, 4)
       nextPlayer = g.nextPlayer()
-      assert.strictEqual(nextPlayer, 1)
+      assert.strictEqual(nextPlayer.id(), 1)
       g.tryPut(nextPlayer, 3)
       nextPlayer = g.nextPlayer()
-      assert.strictEqual(nextPlayer, 2)
+      assert.strictEqual(nextPlayer.id(), 2)
     })
 
     it("checks whether the player is next or not", () => {
       const g = defaultGame()
 
-      assert.doesNotThrow(() => g.tryPut(1, 4))
-      assert.throws(() => g.tryPut(1, 4),)
-      assert.doesNotThrow(() => g.tryPut(2, 4))
-      assert.throws(() => g.tryPut(2, 4),)
+      assert.doesNotThrow(() => g.tryPut(player1, 4))
+      assert.throws(() => g.tryPut(player1, 4),)
+      assert.doesNotThrow(() => g.tryPut(player2, 4))
+      assert.throws(() => g.tryPut(player2, 4),)
     })
 
     it("is possible to put “chips” into slots", () => {
