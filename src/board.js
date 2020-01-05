@@ -6,14 +6,14 @@ const isNeutral = R.equals(NEUTRAL)
 
 const Field = (row, slot, value) => ({ row, slot, value })
 
-// [Field] -> bool
+// :: [Field] -> bool
 const allValuesEqual = R.compose(
   R.both(F.hasLength(1), R.none(isNeutral)),
   R.uniq(),
   R.map(R.prop('value')),
 )
 
-// [Field] -> [Field]
+// :: [Field] -> [Field]
 const seq = {
   horizontal: R.identity,
   vertical: R.transpose,
@@ -21,11 +21,11 @@ const seq = {
   diagonalUp: R.compose(F.transposeDiagonal, R.reverse),
 }
 
-// [[any]] -> [[Field]]
+// :: [[any]] -> [[Field]]
 const boardValuesToFields = F.mapIndexed((ss, row) =>
   F.mapIndexed((value, slot) => ({row, slot, value}), ss))
 
-// [[Field]] -> [[Field]]
+// :: [[Field]] -> [[Field]]
 const allEligibleSeqs = R.compose(
   R.unnest,
   R.juxt([seq.horizontal, seq.vertical, seq.diagonalDown, seq.diagonalUp])
@@ -36,7 +36,7 @@ const toCandidates = winningLength => R.compose(
   R.filter(fs => fs.length >= winningLength),
 )
 
-// Number -> [[any]] -> [[Field]]
+// :: Number -> [[any]] -> [[Field]]
 const findWin = R.curry((winningLength, board) => R.compose(
   w => w || null,
   R.find(allValuesEqual),
@@ -48,7 +48,7 @@ const findWin = R.curry((winningLength, board) => R.compose(
 // Number, Number -> [[NEUTRAL]]
 const create = (rows, slots) => R.times(() => R.repeat(NEUTRAL, slots), rows)
 
-// [[any]] -> [Number]
+// :: [[any]] -> [Number]
 const freeSlots = R.compose(
   R.map(R.nth(0)),
   R.filter(p => isNeutral(p[1])),
@@ -56,13 +56,13 @@ const freeSlots = R.compose(
   R.nth(0),
 )
 
-// Field, [[any]] -> [[any]]
+// :: Field, [[any]] -> [[any]]
 const place = (Field, board) => R.compose(
   R.set(R.lensPath([Field.row, Field.slot]), Field.value),
   R.clone,
 )(board)
 
-// Number -> [[any]] -> bool
+// :: any, Number, [[any]] -> [[any]]
 const putIntoSlot = R.curry((value, slot, board) => R.compose(
   row => row === -1 ? null : place({row, slot, value}, board),
   R.findLastIndex(R.isNil),
