@@ -3,42 +3,42 @@ const D = require("../lib/debug")
 const R = require("ramda")
 const {freeSlots, putIntoSlot, findWin} = require("./board")
 
-// :: Number -> Score
-const Score = (value) => ({value})
-
 // :: ([any], Number) -> any
 const playerOnTurn = (players, i) => players[i%players.length]
 
 // :: ([any], Number) -> Number
 const isMax = (players, i) => i%players.length === 0
 
-// :: (………) -> Score
+// :: (………) -> Number
 const score = (next, config, max, board) => {
   if (findWin(config.winningLength, board)) {
     // Game ends with win/lose:
-    return Score(max ? 1 : -1)
+    return max ? 1 : -1
   }
   const nextSlots = freeSlots(board)
   if (nextSlots.length === 0) {
     // Game ends with draw:
-    return Score(0)
+    return 0
   }
   // Game still open, continue searching:
   return next(board, nextSlots)
 }
 
-// :: bool -> [Number, Score] -> Score
-const decide = (isMax) => isMax ? F.maxBy(r => r.score.value) : F.minBy(r => r.score.value)
+// :: bool -> [Edge] -> Edge
+const decide = (isMax) => isMax ? F.maxBy(r => r.score) : F.minBy(r => r.score)
 
-// :: (………, [[any]], [Number]) -> Score
+// :: (………, [[any]], [Number]) -> Edge
 const evaluate = (config, stats, i) => (board, nextSlots) => R.compose(
-  R.reduce((prev, {slot, nextBoard}) => {
+  R.reduce((prev, curr) => {
     const max = isMax(config.players, i)
-    if (max && prev && prev.score.value === 1) {
+    if (max && prev && prev.score === 1) {
       return prev
     }
     const nextFn = R.compose(R.prop("score"), evaluate(config, stats, i+1))
-    const candidate = {slot, score: score(nextFn, config, max, nextBoard)}
+    const candidate = {
+      slot: curr.slot,
+      score: score(nextFn, config, max, curr.board)
+    }
     if (!prev) {
       return candidate
     }
@@ -46,7 +46,7 @@ const evaluate = (config, stats, i) => (board, nextSlots) => R.compose(
   }, undefined),
   R.map(slot => ({
     slot,
-    nextBoard: putIntoSlot(playerOnTurn(config.players, i), slot, board)
+    board: putIntoSlot(playerOnTurn(config.players, i), slot, board)
   })),
   F.peek(() => stats.iterations++),
 )(nextSlots)
