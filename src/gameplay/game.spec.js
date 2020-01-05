@@ -1,11 +1,17 @@
 const assert = require("assert")
 const { Game } = require("./game")
 const { Player } = require("./player")
+const Fd = require("../board").Field
 
-const player1 = Object.freeze(new Player(1))
-const player2 = Object.freeze(new Player(2))
-const defaultGame = (players = [player1, player2]) => new Game(players, 6, 7, 4)
 const X = null
+
+const defaultGame = (args = {}) => {
+  const players = args.players || [new Player(1), new Player(2)]
+  const rows = args.rows || 6
+  const slots = args.slots || 7
+  const winningLength = args.winningLength || 4
+  return new Game(players, rows, slots, winningLength)
+}
 
 describe("Game", () => {
   describe("initialisation", () => {
@@ -38,6 +44,37 @@ describe("Game", () => {
     })
   })
 
+  describe("status", () => {
+    it("reports on game status", () => {
+      const g = defaultGame({winningLength: 3})
+      assert.strictEqual(g.status().isOngoing, true)
+      assert.strictEqual(g.status().win, null)
+      g.tryPut(g.nextPlayer(), 1)
+      g.tryPut(g.nextPlayer(), 2)
+      g.tryPut(g.nextPlayer(), 1)
+      g.tryPut(g.nextPlayer(), 2)
+      assert.strictEqual(g.status().isOngoing, true)
+      g.tryPut(g.nextPlayer(), 1)
+      assert.strictEqual(g.status().isOngoing, false)
+      assert.deepStrictEqual(g.status().win, [Fd(3,1,1), Fd(4,1,1), Fd(5,1,1)])
+    })
+
+    it("reports playable slots", () => {
+      const g = defaultGame()
+      assert.deepStrictEqual(g.status().freeSlots, [0, 1, 2, 3, 4, 5, 6])
+    })
+
+    it("passes player ids", () => {
+      const g = defaultGame()
+      assert.deepStrictEqual(g.status().playerIds, [1, 2])
+    })
+
+    it("states the configured winningLength", () => {
+      const g = defaultGame()
+      assert.deepStrictEqual(g.status().winningLength, 4)
+    })
+  })
+
   describe("turns", () => {
     it("returns the id of the next player (round robin)", () => {
       const g = defaultGame()
@@ -59,22 +96,22 @@ describe("Game", () => {
     it("fails if player is not next", () => {
       const g = defaultGame()
 
-      assert.doesNotThrow(() => g.tryPut(player1, 4))
-      assert.throws(() => g.tryPut(player1, 4), e => e === "NOT_NEXT")
-      assert.doesNotThrow(() => g.tryPut(player2, 4))
-      assert.throws(() => g.tryPut(player2, 4), e => e === "NOT_NEXT")
+      assert.doesNotThrow(() => g.tryPut(g.players()[0], 4))
+      assert.throws(() => g.tryPut(g.players()[0], 4), e => e === "NOT_NEXT")
+      assert.doesNotThrow(() => g.tryPut(g.players()[1], 4))
+      assert.throws(() => g.tryPut(g.players()[1], 4), e => e === "NOT_NEXT")
     })
 
     it("fails if slot is full", () => {
       const g = defaultGame()
 
-      g.tryPut(player1, 4)
-      g.tryPut(player2, 4)
-      g.tryPut(player1, 4)
-      g.tryPut(player2, 4)
-      g.tryPut(player1, 4)
-      g.tryPut(player2, 4)
-      assert.throws(() => g.tryPut(player1, 4), e => e === "SLOT_IS_FULL")
+      g.tryPut(g.players()[0], 4)
+      g.tryPut(g.players()[1], 4)
+      g.tryPut(g.players()[0], 4)
+      g.tryPut(g.players()[1], 4)
+      g.tryPut(g.players()[0], 4)
+      g.tryPut(g.players()[1], 4)
+      assert.throws(() => g.tryPut(g.players()[0], 4), e => e === "SLOT_IS_FULL")
     })
 
     it("fails player is not part of game", () => {
@@ -87,11 +124,11 @@ describe("Game", () => {
     it("fails if slot is invalid", () => {
       const g = defaultGame()
 
-      assert.throws(() => g.tryPut(player1, -12), e => e === "INVALID_SLOT")
-      assert.throws(() => g.tryPut(player1, 18), e => e === "INVALID_SLOT")
-      assert.throws(() => g.tryPut(player1, "asdf"), e => e === "INVALID_SLOT")
-      assert.throws(() => g.tryPut(player1, undefined), e => e === "INVALID_SLOT")
-      assert.throws(() => g.tryPut(player1, [3]), e => e === "INVALID_SLOT")
+      assert.throws(() => g.tryPut(g.players()[0], -12), e => e === "INVALID_SLOT")
+      assert.throws(() => g.tryPut(g.players()[0], 18), e => e === "INVALID_SLOT")
+      assert.throws(() => g.tryPut(g.players()[0], "asdf"), e => e === "INVALID_SLOT")
+      assert.throws(() => g.tryPut(g.players()[0], undefined), e => e === "INVALID_SLOT")
+      assert.throws(() => g.tryPut(g.players()[0], [3]), e => e === "INVALID_SLOT")
     })
 
     it("is possible to put “chips” into slots", () => {
@@ -138,13 +175,13 @@ describe("Game", () => {
   })
 
   describe("next", () => {
-    it("passes on information to the callback", testDone => {
-      const p1 = new Player(1, "Bill", (board, freeSlots, done, gameCfg) => {
-        assert.strictEqual(gameCfg.winningLength, 4)
-        assert.deepStrictEqual(gameCfg.playerIds, [1])
+    it("passes on game status to the callback", testDone => {
+      const p1 = new Player(1, "Bill", (done, board, status) => {
+        assert.strictEqual(status.winningLength, 4)
+        assert.deepStrictEqual(status.playerIds, [1])
         done(2)
       })
-      const g = defaultGame([p1])
+      const g = defaultGame({ players: [p1] })
       g.next()
         .then(testDone)
         .catch(console.log)
@@ -153,15 +190,15 @@ describe("Game", () => {
     it("always invokes the player on turn", testDone => {
       let spy1 = 0
       let spy2 = 0
-      const p1 = new Player(1, "Bill", (board, freeSlots, done) => {
+      const p1 = new Player(1, "Bill", (done, board, status) => {
         spy1++
-        done(freeSlots[1])
+        done(status.freeSlots[1])
       })
-      const p2 = new Player(2, "Carla", (board, freeSlots, done) => {
+      const p2 = new Player(2, "Carla", (done, board, status) => {
         spy2++
-        done(freeSlots[4])
+        done(status.freeSlots[4])
       })
-      const g = defaultGame([p1, p2])
+      const g = defaultGame({ players: [p1, p2] })
 
       g.next().then(() => {
         assert.strictEqual(spy1, 1)

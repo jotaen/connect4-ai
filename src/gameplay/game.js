@@ -1,4 +1,4 @@
-const { putIntoSlot, create, freeSlots } = require("../board")
+const { putIntoSlot, create, freeSlots, findWin } = require("../board")
 
 function Game(players, rows, slots, winningLength) {
   this._players = players;
@@ -30,18 +30,22 @@ Game.prototype.tryPut = function(player, slotId) {
 Game.prototype.next = function() {
   const nextPlayer = this._players[this._nextPlayerIt]
   return new Promise((resolve, reject) => {
-    nextPlayer.onTurn(
-      this._board,
-      freeSlots(this._board),
-      resolve,
-      {
-        winningLength: this._winningLength,
-        playerIds: this._players.map(p => p.id())
-      }
-    )
+    nextPlayer.onTurn(resolve, this._board, this.status())
   }).then(desiredSlot => {
     this.tryPut(nextPlayer, desiredSlot)
   })
+}
+
+Game.prototype.status = function() {
+  const slots = freeSlots(this._board)
+  const win = findWin(this._winningLength, this._board)
+  return {
+    freeSlots: slots,
+    isOngoing: slots.length > 0 && !win,
+    win: win,
+    winningLength: this._winningLength,
+    playerIds: this._players.map(p => p.id())
+  }
 }
 
 Game.prototype.nextPlayer = function() {
