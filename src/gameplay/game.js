@@ -1,4 +1,4 @@
-const Board = require("./board")
+const Board = require("../board")
 
 function Game(playerIds, rows, columns) {
   this._playerIds = playerIds;

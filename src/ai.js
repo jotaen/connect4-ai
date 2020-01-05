@@ -1,5 +1,4 @@
-const F = require("../lib/F")
-const D = require("../lib/debug")
+const F = require("./lib/F")
 const R = require("ramda")
 const {freeSlots, putIntoSlot, findWin} = require("./board")
 

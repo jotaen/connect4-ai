@@ -1,5 +1,5 @@
 const R = require("ramda")
-const F = require("../lib/F")
+const F = require("./lib/F")
 
 const NEUTRAL = null
 const isNeutral = R.equals(NEUTRAL)

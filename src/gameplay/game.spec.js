@@ -1,5 +1,5 @@
 const assert = require("assert")
-const {Game} = require("./game")
+const { Game } = require("./game")
 
 const defaultGame = () => new Game([1, 2], 6, 7)
 const X = null
