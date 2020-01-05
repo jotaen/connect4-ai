@@ -45,13 +45,41 @@ describe("Game", () => {
       assert.strictEqual(nextPlayer.id(), 2)
     })
 
-    it("checks whether the player is next or not", () => {
+    it("fails if player is not next", () => {
       const g = defaultGame()
 
       assert.doesNotThrow(() => g.tryPut(player1, 4))
-      assert.throws(() => g.tryPut(player1, 4),)
+      assert.throws(() => g.tryPut(player1, 4), e => e === "NOT_NEXT")
       assert.doesNotThrow(() => g.tryPut(player2, 4))
-      assert.throws(() => g.tryPut(player2, 4),)
+      assert.throws(() => g.tryPut(player2, 4), e => e === "NOT_NEXT")
+    })
+
+    it("fails if slot is full", () => {
+      const g = defaultGame()
+
+      g.tryPut(player1, 4)
+      g.tryPut(player2, 4)
+      g.tryPut(player1, 4)
+      g.tryPut(player2, 4)
+      g.tryPut(player1, 4)
+      g.tryPut(player2, 4)
+      assert.throws(() => g.tryPut(player1, 4), e => e === "SLOT_IS_FULL")
+    })
+
+    it("fails player is not part of game", () => {
+      const g = defaultGame()
+
+      const evil = new Player(5, "Evil", () => 2)
+      assert.throws(() => g.tryPut(evil, 4), e => e === "NOT_NEXT")
+    })
+
+    it("fails if slot is invalid", () => {
+      const g = defaultGame()
+
+      assert.throws(() => g.tryPut(player1, 18), e => e === "INVALID_SLOT")
+      assert.throws(() => g.tryPut(player1, "asdf"), e => e === "INVALID_SLOT")
+      assert.throws(() => g.tryPut(player1, undefined), e => e === "INVALID_SLOT")
+      assert.throws(() => g.tryPut(player1, [3]), e => e === "INVALID_SLOT")
     })
 
     it("is possible to put “chips” into slots", () => {

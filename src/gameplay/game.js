@@ -14,6 +14,9 @@ Game.prototype.tryPut = function(player, slotId) {
   if (this._players[this._nextPlayerIt].id() !== player.id()) {
     throw "NOT_NEXT"
   }
+  if (typeof slotId !== "number" || slotId > this._board[0].length) {
+    throw "INVALID_SLOT"
+  }
   const nextBoard = putIntoSlot(player.id(), slotId, this._board)
   if (nextBoard === null) {
     throw "SLOT_IS_FULL"
