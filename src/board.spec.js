@@ -1,5 +1,6 @@
 const assert = require("assert")
-const {create, field, findWin, freeSlots, putIntoSlot} = require("./board")
+const {create, Field, findWin, freeSlots, putIntoSlot} = require("./board")
+const Fd = Field
 
 const assertWins = ({expected, board, winningLength = 4}) => {
   const winners = findWin(winningLength, board)
@@ -66,7 +67,7 @@ describe("Board", () => {
 
     it("finds winners in horizontal sequences", () => {
       [
-        {expected: [field(5,2,1), field(5,3,1), field(5,4,1), field(5,5,1)], board: [
+        {expected: [Fd(5,2,1), Fd(5,3,1), Fd(5,4,1), Fd(5,5,1)], board: [
           [X,X,X,X,X,X,X],
           [X,X,X,X,X,X,X],
           [X,X,X,X,X,X,X],
@@ -74,7 +75,7 @@ describe("Board", () => {
           [X,X,X,X,X,X,X],
           [X,X,1,1,1,1,X],
         ]},
-        {expected: [field(2,3,2), field(2,4,2), field(2,5,2), field(2,6,2)], board: [
+        {expected: [Fd(2,3,2), Fd(2,4,2), Fd(2,5,2), Fd(2,6,2)], board: [
           [X,X,X,X,X,X,X],
           [X,X,X,X,X,X,X],
           [X,X,X,2,2,2,2],
@@ -87,7 +88,7 @@ describe("Board", () => {
 
     it("finds winners in vertical sequences", () => {
       [
-        {expected: [field(2,2,1), field(3,2,1), field(4,2,1), field(5,2,1)], board: [
+        {expected: [Fd(2,2,1), Fd(3,2,1), Fd(4,2,1), Fd(5,2,1)], board: [
           [X,X,X,X,X,X,X],
           [X,X,X,X,X,X,X],
           [X,X,1,X,X,X,X],
@@ -95,7 +96,7 @@ describe("Board", () => {
           [X,X,1,X,X,X,X],
           [X,X,1,X,X,X,X],
         ]},
-        {expected: [field(1,4,2), field(2,4,2), field(3,4,2), field(4,4,2)], board: [
+        {expected: [Fd(1,4,2), Fd(2,4,2), Fd(3,4,2), Fd(4,4,2)], board: [
           [X,X,X,X,X,X,X],
           [X,X,X,X,2,X,X],
           [X,X,1,X,2,X,X],
@@ -108,7 +109,7 @@ describe("Board", () => {
 
     it("finds winners in diagonal sequences", () => {
       [
-        {expected: [field(2,0,1), field(3,1,1), field(4,2,1), field(5,3,1)], board: [
+        {expected: [Fd(2,0,1), Fd(3,1,1), Fd(4,2,1), Fd(5,3,1)], board: [
           [X,X,X,X,X,X,X],
           [X,X,X,X,X,X,X],
           [1,X,X,X,X,X,X],
@@ -116,7 +117,7 @@ describe("Board", () => {
           [2,2,1,X,X,X,X],
           [2,2,2,1,X,X,X],
         ]},
-        {expected: [field(5,2,2), field(4,3,2), field(3,4,2), field(2,5,2)], board: [
+        {expected: [Fd(5,2,2), Fd(4,3,2), Fd(3,4,2), Fd(2,5,2)], board: [
           [X,X,X,X,X,X,X],
           [X,X,X,X,1,X,X],
           [X,X,2,X,2,2,X],
@@ -171,7 +172,7 @@ describe("Board", () => {
 
     it("puts value into slot (if possible) and returns new board", () => {
       [
-        {slot: 3, value: 1, expected: field(5,3,1), board: [
+        {slot: 3, value: 1, expected: Fd(5,3,1), board: [
           [X,X,X,X,X,X,X],
           [X,X,X,X,X,X,X],
           [X,X,X,X,X,X,X],
@@ -179,7 +180,7 @@ describe("Board", () => {
           [X,X,X,X,X,X,X],
           [X,X,X,X,X,X,X],
         ]},
-        {slot: 4, value: 3, expected: field(2,4,3), board: [
+        {slot: 4, value: 3, expected: Fd(2,4,3), board: [
           [1,X,X,X,X,1,X],
           [2,X,X,X,X,2,X],
           [2,X,X,X,X,1,X],
@@ -229,7 +230,7 @@ describe("Board", () => {
     it("can handle arbitrary winning lengths", () => {
       [
         {winningLength: 7, expected: [
-          field(5,0,1), field(5,1,1), field(5,2,1), field(5,3,1), field(5,4,1), field(5,5,1), field(5,6,1), 
+          Fd(5,0,1), Fd(5,1,1), Fd(5,2,1), Fd(5,3,1), Fd(5,4,1), Fd(5,5,1), Fd(5,6,1), 
         ], board: [
           [2,X,X,X,X,X,X],
           [2,X,X,X,X,X,1],
@@ -239,7 +240,7 @@ describe("Board", () => {
           [1,1,1,1,1,1,1],
         ]},
         {winningLength: 3, expected: [
-          field(5,2,1), field(4,3,1), field(3,4,1)
+          Fd(5,2,1), Fd(4,3,1), Fd(3,4,1)
         ], board: [
           [X,X,X,X,X,X,X],
           [X,X,X,X,X,X,X],
@@ -253,7 +254,7 @@ describe("Board", () => {
 
     it("can handle arbitrary number of player ids", () => {
       [
-        {expected: [field(4,3,3), field(3,4,3), field(2,5,3), field(1,6,3)], board: [
+        {expected: [Fd(4,3,3), Fd(3,4,3), Fd(2,5,3), Fd(1,6,3)], board: [
           [3,X,X,X,X,X,X],
           [3,X,X,X,X,X,3],
           [2,X,X,X,X,3,2],
@@ -261,7 +262,7 @@ describe("Board", () => {
           [2,X,X,3,2,1,2],
           [1,3,2,3,3,1,1],
         ]},
-        {expected: [field(5,0,1), field(5,1,1), field(5,2,1), field(5,3,1)], board: [
+        {expected: [Fd(5,0,1), Fd(5,1,1), Fd(5,2,1), Fd(5,3,1)], board: [
           [X,X,X,X,X,X,X],
           [X,X,X,X,X,X,X],
           [X,X,X,X,X,X,X],
@@ -274,11 +275,11 @@ describe("Board", () => {
 
     it("can handle arbitrary board size", () => {
       [
-        {expected: [field(1,0,1), field(1,1,1), field(1,2,1), field(1,3,1)], board: [
+        {expected: [Fd(1,0,1), Fd(1,1,1), Fd(1,2,1), Fd(1,3,1)], board: [
           [X,X,X,X],
           [1,1,1,1],
         ]},
-        {expected: [field(5,11,1), field(6,11,1), field(7,11,1), field(8,11,1)], board: [
+        {expected: [Fd(5,11,1), Fd(6,11,1), Fd(7,11,1), Fd(8,11,1)], board: [
           [X,X,X,X,X,X,X,X,X,X,X,X,X,X],
           [X,X,X,X,X,X,X,X,X,X,X,X,X,X],
           [X,X,X,X,X,X,X,X,X,X,X,X,X,X],
@@ -295,11 +296,11 @@ describe("Board", () => {
 
     it("can handle arbitrary (illegal) winning positions", () => {
       [
-        {expected: [field(0,0,1), field(0,1,1), field(0,2,1), field(0,3,1)], board: [
+        {expected: [Fd(0,0,1), Fd(0,1,1), Fd(0,2,1), Fd(0,3,1)], board: [
           [1,1,1,1],
           [X,X,X,X],
         ]},
-        {expected: [field(1,7,3), field(2,8,3), field(3,9,3), field(4,10,3)], board: [
+        {expected: [Fd(1,7,3), Fd(2,8,3), Fd(3,9,3), Fd(4,10,3)], board: [
           [X,X,X,X,X,X,X,X,X,X,X,X,X,X],
           [X,X,X,3,X,X,X,3,X,X,X,X,X,X],
           [3,X,X,X,X,X,X,X,3,X,X,X,X,X],

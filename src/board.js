@@ -4,16 +4,16 @@ const F = require("../lib/F")
 const NEUTRAL = null
 const isNeutral = R.equals(NEUTRAL)
 
-const field = (row, slot, value) => ({ row, slot, value })
+const Field = (row, slot, value) => ({ row, slot, value })
 
-// [field] -> bool
+// [Field] -> bool
 const allValuesEqual = R.compose(
   R.both(F.hasLength(1), R.none(isNeutral)),
   R.uniq(),
   R.map(R.prop('value')),
 )
 
-// [field] -> [field]
+// [Field] -> [Field]
 const seq = {
   horizontal: R.identity,
   vertical: R.transpose,
@@ -21,11 +21,11 @@ const seq = {
   diagonalUp: R.compose(F.transposeDiagonal, R.reverse),
 }
 
-// [[any]] -> [[field]]
+// [[any]] -> [[Field]]
 const boardValuesToFields = F.mapIndexed((ss, row) =>
   F.mapIndexed((value, slot) => ({row, slot, value}), ss))
 
-// [[field]] -> [[field]]
+// [[Field]] -> [[Field]]
 const allEligibleSeqs = R.compose(
   R.unnest,
   R.juxt([seq.horizontal, seq.vertical, seq.diagonalDown, seq.diagonalUp])
@@ -36,7 +36,7 @@ const toCandidates = winningLength => R.compose(
   R.filter(fs => fs.length >= winningLength),
 )
 
-// Number -> [[any]] -> [[field]]
+// Number -> [[any]] -> [[Field]]
 const findWin = R.curry((winningLength, board) => R.compose(
   w => w || null,
   R.find(allValuesEqual),
@@ -56,9 +56,9 @@ const freeSlots = R.compose(
   R.nth(0),
 )
 
-// field, [[any]] -> [[any]]
-const place = (field, board) => R.compose(
-  R.set(R.lensPath([field.row, field.slot]), field.value),
+// Field, [[any]] -> [[any]]
+const place = (Field, board) => R.compose(
+  R.set(R.lensPath([Field.row, Field.slot]), Field.value),
   R.clone,
 )(board)
 
@@ -72,7 +72,7 @@ const putIntoSlot = R.curry((value, slot, board) => R.compose(
 
 module.exports = {
   create,
-  field,
+  Field,
   findWin,
   freeSlots,
   putIntoSlot,

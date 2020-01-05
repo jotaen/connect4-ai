@@ -1,11 +1,11 @@
 const assert = require("assert")
-const {nextSlot} = require("./ai")
+const {move} = require("./ai")
 
 const _ = null
 const a = 1 // ai
 
 const assertNextMove = t => {
-  const res = nextSlot(t.winningLength, [a, 0], t.board)
+  const res = move(t.winningLength, [a, 0], t.board)
   assert.strictEqual(res.slot, t.expected)
   if ("iterations" in t) {
     assert.strictEqual(res.iterations, t.iterations)
