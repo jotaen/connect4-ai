@@ -7,7 +7,7 @@ const {freeSlots, putIntoSlot, findWin} = require("./board")
 const playerOnTurn = (players, i) => players[i%players.length]
 
 // :: ([any], Number) -> Number
-const isMax = (players, i) => i%players.length === 0
+const isMaxOnTurn = (players, i) => i%players.length === 0
 
 // :: (………) -> Number
 const score = (next, config, max, board) => {
@@ -25,24 +25,24 @@ const score = (next, config, max, board) => {
 }
 
 // :: bool -> [Edge] -> Edge
-const decide = (isMax) => isMax ? F.maxBy(r => r.score) : F.minBy(r => r.score)
+const decide = (isMax) => isMax ? F.maxBy(R.prop("score")) : F.minBy(R.prop("score"))
 
 // :: (………, [[any]], [Number]) -> Edge
 const evaluate = (config, stats, i) => (board, nextSlots) => R.compose(
   R.reduce((prev, curr) => {
-    const max = isMax(config.players, i)
-    if (max && prev && prev.score === 1) {
+    const isMax = isMaxOnTurn(config.players, i)
+    if (isMax && prev && prev.score === 1) {
       return prev
     }
     const nextFn = R.compose(R.prop("score"), evaluate(config, stats, i+1))
     const candidate = {
       slot: curr.slot,
-      score: score(nextFn, config, max, curr.board)
+      score: score(nextFn, config, isMax, curr.board)
     }
     if (!prev) {
       return candidate
     }
-    return decide(max)([prev, candidate])
+    return decide(isMax)(prev, candidate)
   }, undefined),
   R.map(slot => ({
     slot,

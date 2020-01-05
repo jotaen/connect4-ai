@@ -52,7 +52,9 @@ describe("AI", () => {
         [a,_,_],
         [0,_,0],
       ]},
-      {winningLength: 3, iterations: 15, expected: 2, board: [
+      {winningLength: 3, iterations: 62, expected: 2, board: [
+        // othher possible outcomes: draw
+        [_,_,_],
         [_,_,_],
         [_,0,a],
         [0,a,0],
