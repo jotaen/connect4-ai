@@ -12,10 +12,6 @@ const playerOnTurn = (players, i) => players[i%players.length]
 // :: ([any], Number) -> Number
 const isMax = (players, i) => i%players.length === 0
 
-// :: ([[any]], [any], Number) -> Number -> Number, [[any]]
-const generateNextBoard = (board, players, i) => slot => 
-  putIntoSlot(playerOnTurn(players, i), slot, board)
-
 // :: (………) -> Score
 const score = (next, config, i, board) => {
   if (findWin(config.winningLength, board)) {
@@ -32,17 +28,22 @@ const score = (next, config, i, board) => {
 }
 
 // :: bool -> [Number, Score] -> Score
-const decide = (isMax) => isMax ? F.maxBy(s => s.value) : F.minBy(s => s.value)
+const decide = (isMax) => isMax ? F.maxBy(r => r.score.value) : F.minBy(r => r.score.value)
 
-// :: [Score] -> [Score*]     (* with additional prop `index`)
-const addIndexes = F.mapIndexed((s, i) => {s.index = i; return s;})
-
-// :: (………, [[any]], [Number]) -> Score*
+// :: (………, [[any]], [Number]) -> Score
 const evaluate = (config, stats) => (i, board, nextSlots) => R.compose(
-  decide(isMax(config.players, i)),
-  i === 0 ? addIndexes : R.identity,
-  R.map(nb => score(evaluate(config, stats), config, i, nb)),
-  R.map(generateNextBoard(board, config.players, i)),
+  R.reduce((prev, {slot, nextBoard}) => {
+    const nextFn = R.compose(R.prop("score"), evaluate(config, stats))
+    const candidate = {slot, score: score(nextFn, config, i, nextBoard)}
+    if (prev === undefined) {
+      return candidate
+    }
+    return decide(isMax(config.players, i))([prev, candidate])
+  }, undefined),
+  R.map(slot => ({
+    slot,
+    nextBoard: putIntoSlot(playerOnTurn(config.players, i), slot, board)
+  })),
   F.peek(() => stats.iterations++),
 )(nextSlots)
 
@@ -51,7 +52,7 @@ const move = (winningLength, players, board) => {
   const config = { players, winningLength }
   const slots = freeSlots(board)
   const res = evaluate(config, stats)(0, board, freeSlots(board), slots)
-  return { slot: slots[res.index], ...stats }
+  return { ...res, ...stats }
 }
 
 module.exports = {
