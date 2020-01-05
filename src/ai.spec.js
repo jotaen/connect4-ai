@@ -5,7 +5,11 @@ const _ = null
 const a = 1 // ai
 
 const assertNextMove = t => {
-  const res = move(t.winningLength, [a, 0], t.board)
+  const config = {
+    winningLength: t.winningLength,
+    players: [a, 0],
+  }
+  const res = move(config, t.board)
   assert.strictEqual(res.slot, t.expected)
   if ("iterations" in t) {
     assert.strictEqual(res.iterations, t.iterations)

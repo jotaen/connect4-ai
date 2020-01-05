@@ -50,9 +50,8 @@ const evaluate = (config, stats, i) => (board, nextSlots) => R.compose(
   F.peek(() => stats.iterations++),
 )(nextSlots)
 
-const move = (winningLength, players, board) => {
+const move = (config, board) => {
   const stats = { iterations: 0 }
-  const config = Object.freeze({ players, winningLength })
   const slots = freeSlots(board)
   const res = evaluate(config, stats, 0)(board, freeSlots(board), slots)
   return { ...res, ...stats }

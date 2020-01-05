@@ -177,7 +177,7 @@ describe("Game", () => {
 
   describe("next", () => {
     it("passes on game status to the callback", testDone => {
-      const p1 = new Player(1, "Bill", (done, board, status) => {
+      const p1 = new Player(1, "Bill", (me, done, board, status) => {
         assert.strictEqual(status.winningLength, 4)
         assert.deepStrictEqual(status.playerIds, [1])
         done(2)
@@ -191,11 +191,11 @@ describe("Game", () => {
     it("always invokes the player on turn", testDone => {
       let spy1 = 0
       let spy2 = 0
-      const p1 = new Player(1, "Bill", (done, board, status) => {
+      const p1 = new Player(1, "Bill", (me, done, board, status) => {
         spy1++
         done(status.freeSlots[1])
       })
-      const p2 = new Player(2, "Carla", (done, board, status) => {
+      const p2 = new Player(2, "Carla", (me, done, board, status) => {
         spy2++
         done(status.freeSlots[4])
       })
