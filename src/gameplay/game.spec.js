@@ -87,6 +87,7 @@ describe("Game", () => {
     it("fails if slot is invalid", () => {
       const g = defaultGame()
 
+      assert.throws(() => g.tryPut(player1, -12), e => e === "INVALID_SLOT")
       assert.throws(() => g.tryPut(player1, 18), e => e === "INVALID_SLOT")
       assert.throws(() => g.tryPut(player1, "asdf"), e => e === "INVALID_SLOT")
       assert.throws(() => g.tryPut(player1, undefined), e => e === "INVALID_SLOT")
