@@ -129,6 +129,7 @@ describe("Game", () => {
       assert.throws(() => g.tryPut(g.players()[0], "asdf"), e => e === "INVALID_SLOT")
       assert.throws(() => g.tryPut(g.players()[0], undefined), e => e === "INVALID_SLOT")
       assert.throws(() => g.tryPut(g.players()[0], [3]), e => e === "INVALID_SLOT")
+      assert.throws(() => g.tryPut(g.players()[0], NaN), e => e === "INVALID_SLOT")
     })
 
     it("is possible to put “chips” into slots", () => {
