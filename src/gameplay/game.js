@@ -1,8 +1,9 @@
 const { putIntoSlot, create, freeSlots } = require("../board")
 
-function Game(players, rows, slots) {
+function Game(players, rows, slots, winningLength) {
   this._players = players;
   this._nextPlayerIt = 0
+  this._winningLength = winningLength
   this._board = create(rows, slots)
 };
 
@@ -29,7 +30,15 @@ Game.prototype.tryPut = function(player, slotId) {
 Game.prototype.next = function() {
   const nextPlayer = this._players[this._nextPlayerIt]
   return new Promise((resolve, reject) => {
-    nextPlayer.onTurn(this._board, freeSlots(this._board), resolve)
+    nextPlayer.onTurn(
+      this._board,
+      freeSlots(this._board),
+      resolve,
+      {
+        winningLength: this._winningLength,
+        playerIds: this._players.map(p => p.id())
+      }
+    )
   }).then(desiredSlot => {
     this.tryPut(nextPlayer, desiredSlot)
   })

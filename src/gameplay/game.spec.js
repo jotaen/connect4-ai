@@ -4,7 +4,7 @@ const { Player } = require("./player")
 
 const player1 = Object.freeze(new Player(1))
 const player2 = Object.freeze(new Player(2))
-const defaultGame = (players = [player1, player2]) => new Game(players, 6, 7)
+const defaultGame = (players = [player1, player2]) => new Game(players, 6, 7, 4)
 const X = null
 
 describe("Game", () => {
@@ -137,6 +137,18 @@ describe("Game", () => {
   })
 
   describe("next", () => {
+    it("passes on information to the callback", testDone => {
+      const p1 = new Player(1, "Bill", (board, freeSlots, done, gameCfg) => {
+        assert.strictEqual(gameCfg.winningLength, 4)
+        assert.deepStrictEqual(gameCfg.playerIds, [1])
+        done(2)
+      })
+      const g = defaultGame([p1])
+      g.next()
+        .then(testDone)
+        .catch(console.log)
+    })
+
     it("always invokes the player on turn", testDone => {
       let spy1 = 0
       let spy2 = 0
