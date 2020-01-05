@@ -12,8 +12,8 @@ Player.prototype.name = function() {
   return this._name
 }
 
-Player.prototype.onTurn = function(board, freeSlots) {
-  return this._onTurn(board, freeSlots)
+Player.prototype.onTurn = function(board, freeSlots, done) {
+  this._onTurn(board, freeSlots, done)
 }
 
 module.exports = { Player }

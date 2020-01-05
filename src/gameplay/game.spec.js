@@ -126,54 +126,59 @@ describe("Game", () => {
   })
 
   describe("next", () => {
-    it("always invokes the player on turn", () => {
+    it("always invokes the player on turn", testDone => {
       let spy1 = 0
       let spy2 = 0
-      const p1 = new Player(1, "Bill", (board, freeSlots) => {
+      const p1 = new Player(1, "Bill", (board, freeSlots, done) => {
         spy1++
-        return freeSlots[1]
+        done(freeSlots[1])
       })
-      const p2 = new Player(2, "Carla", (board, freeSlots) => {
+      const p2 = new Player(2, "Carla", (board, freeSlots, done) => {
         spy2++
-        return freeSlots[4]
+        done(freeSlots[4])
       })
       const g = defaultGame([p1, p2])
 
-      g.next()
-      assert.strictEqual(spy1, 1)
-      assert.strictEqual(spy2, 0)
-      assert.deepStrictEqual(g.board(), [
-        [X,X,X,X,X,X,X],
-        [X,X,X,X,X,X,X],
-        [X,X,X,X,X,X,X],
-        [X,X,X,X,X,X,X],
-        [X,X,X,X,X,X,X],
-        [X,1,X,X,X,X,X],
-      ])
-
-      g.next()
-      assert.strictEqual(spy1, 1)
-      assert.strictEqual(spy2, 1)
-      assert.deepStrictEqual(g.board(), [
-        [X,X,X,X,X,X,X],
-        [X,X,X,X,X,X,X],
-        [X,X,X,X,X,X,X],
-        [X,X,X,X,X,X,X],
-        [X,X,X,X,X,X,X],
-        [X,1,X,X,2,X,X],
-      ])
-
-      g.next()
-      assert.strictEqual(spy1, 2)
-      assert.strictEqual(spy2, 1)
-      assert.deepStrictEqual(g.board(), [
-        [X,X,X,X,X,X,X],
-        [X,X,X,X,X,X,X],
-        [X,X,X,X,X,X,X],
-        [X,X,X,X,X,X,X],
-        [X,1,X,X,X,X,X],
-        [X,1,X,X,2,X,X],
-      ])
+      g.next().then(() => {
+        assert.strictEqual(spy1, 1)
+        assert.strictEqual(spy2, 0)
+        assert.deepStrictEqual(g.board(), [
+          [X,X,X,X,X,X,X],
+          [X,X,X,X,X,X,X],
+          [X,X,X,X,X,X,X],
+          [X,X,X,X,X,X,X],
+          [X,X,X,X,X,X,X],
+          [X,1,X,X,X,X,X],
+        ])
+      })
+      .then(() => g.next())
+      .then(() => {
+        assert.strictEqual(spy1, 1)
+        assert.strictEqual(spy2, 1)
+        assert.deepStrictEqual(g.board(), [
+          [X,X,X,X,X,X,X],
+          [X,X,X,X,X,X,X],
+          [X,X,X,X,X,X,X],
+          [X,X,X,X,X,X,X],
+          [X,X,X,X,X,X,X],
+          [X,1,X,X,2,X,X],
+        ])
+      })
+      .then(() => g.next())
+      .then(() => {
+        assert.strictEqual(spy1, 2)
+        assert.strictEqual(spy2, 1)
+        assert.deepStrictEqual(g.board(), [
+          [X,X,X,X,X,X,X],
+          [X,X,X,X,X,X,X],
+          [X,X,X,X,X,X,X],
+          [X,X,X,X,X,X,X],
+          [X,1,X,X,X,X,X],
+          [X,1,X,X,2,X,X],
+        ])
+      })
+      .then(testDone)
+      .catch(console.log)
     })
   })
 })

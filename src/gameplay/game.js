@@ -28,8 +28,11 @@ Game.prototype.tryPut = function(player, slotId) {
 
 Game.prototype.next = function() {
   const nextPlayer = this._players[this._nextPlayerIt]
-  const desiredSlot = nextPlayer.onTurn(this._board, freeSlots(this._board))
-  this.tryPut(nextPlayer, desiredSlot)
+  return new Promise((resolve, reject) => {
+    nextPlayer.onTurn(this._board, freeSlots(this._board), resolve)
+  }).then(desiredSlot => {
+    this.tryPut(nextPlayer, desiredSlot)
+  })
 }
 
 Game.prototype.nextPlayer = function() {
