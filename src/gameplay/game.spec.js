@@ -25,6 +25,17 @@ describe("Game", () => {
         [X,X,X,X,X,X,X],
       ])
     })
+
+
+    it("the board size can be supplied", () => {
+      const g = new Game([], 4, 3)
+      assert.deepStrictEqual(g.board(), [
+        [X,X,X],
+        [X,X,X],
+        [X,X,X],
+        [X,X,X],
+      ])
+    })
   })
 
   describe("turns", () => {

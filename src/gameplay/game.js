@@ -1,9 +1,9 @@
 const { putIntoSlot, create, freeSlots } = require("../board")
 
-function Game(players, rows, columns) {
+function Game(players, rows, slots) {
   this._players = players;
   this._nextPlayerIt = 0
-  this._board = create(6, 7)
+  this._board = create(rows, slots)
 };
 
 Game.prototype.players = function() {
