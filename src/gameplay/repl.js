@@ -23,15 +23,19 @@ const askAi = (me, done, board, status) => {
     players: status.playerIds.reverse(),
   }
   const result = ai.move(config, board)
+  console.log(result)
   done(result.slot)
 }
 
 const cliPlayer = new Player("X", "You", askUser)
 const aiPlayer = new Player("O", "Computer", askAi)
-const game = new Game([cliPlayer, aiPlayer], 4, 3, 3)
+const game = new Game([cliPlayer, aiPlayer], 4, 5, 3)
 
-console.log("")
-console.log(game.players().map(p => p.name() + " (" + p.id() + ")").join(" vs. "))
+console.log(`
+====== ${game.players().map(p => p.name()+" ("+p.id()+")").join(" vs. ")} ======
+
+Connect ${game.status().winningLength} chips to win.
+`)
 
 const repl = () => {
   console.log("")
@@ -52,9 +56,7 @@ const repl = () => {
       })
   }
 
-  console.log("")
-  console.log("===== GAME FINISHED =====")
-  console.log("")
+  console.log("\n===== GAME FINISHED =====\n")
 
   if (s.win) {
     const winner = game.players().find(p => p.id() === s.win[0].value)
