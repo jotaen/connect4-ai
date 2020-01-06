@@ -51,6 +51,9 @@ const Node = () => ({
   isMax: isMaxOnTurn(config.players, i),
 })
 
+// :: Board -> [Number] -> [Number]
+const prioritiseSlots = board => R.sort(F.compareCloseTo(Math.floor(board[0].length * 0.5)))
+
 // :: (………, Board, [Number]) -> Node
 const evaluate = (config, stats, i) => (board, nextSlots) => R.compose(
   makeDecision,
@@ -70,6 +73,7 @@ const evaluate = (config, stats, i) => (board, nextSlots) => R.compose(
       isMax: isMaxOnTurn(config.players, i),
   }}),
   F.peek(() => stats.iterations++),
+  prioritiseSlots(board),
 )(nextSlots)
 
 const Config = (config, slots) => Object.freeze({
