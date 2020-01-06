@@ -9,15 +9,19 @@ const playerOnTurn = (players, i) => players[i%players.length]
 const isMaxOnTurn = (players, i) => i%players.length === 0
 
 // :: (………) -> Number
-const score = (next, config, max, board) => {
+const score = (next, config, context, board) => {
   if (findWin(config.winningLength, board)) {
     // Game ends with win/lose:
-    return max ? 1 : -1
+    return context.isMax ? 1 : -1
   }
   const nextSlots = freeSlots(board)
   if (nextSlots.length === 0) {
     // Game ends with draw:
     return 0
+  }
+  // Game still open, max iteration depth reached:
+  if (context.isIterationLimit) {
+    return 0.5
   }
   // Game still open, continue searching:
   return next(board, nextSlots)
@@ -29,19 +33,22 @@ const decide = (isMax) => isMax ? F.maxBy(R.prop("score")) : F.minBy(R.prop("sco
 // :: (………, [[any]], [Number]) -> Edge
 const evaluate = (config, stats, i) => (board, nextSlots) => R.compose(
   R.reduce((prev, curr) => {
-    const isMax = isMaxOnTurn(config.players, i)
-    if (isMax && prev && prev.score === 1) {
+    const context = {
+      isIterationLimit: i >= config.maxIterationDepth,
+      isMax: isMaxOnTurn(config.players, i),
+    }
+    if (context.isMax && prev && prev.score === 1) {
       return prev
     }
     const nextFn = R.compose(R.prop("score"), evaluate(config, stats, i+1))
     const candidate = {
       slot: curr.slot,
-      score: score(nextFn, config, isMax, curr.board)
+      score: score(nextFn, config, context, curr.board)
     }
     if (!prev) {
       return candidate
     }
-    return decide(isMax)(prev, candidate)
+    return decide(context.isMax)(prev, candidate)
   }, undefined),
   R.map(slot => ({
     slot,
@@ -50,11 +57,17 @@ const evaluate = (config, stats, i) => (board, nextSlots) => R.compose(
   F.peek(() => stats.iterations++),
 )(nextSlots)
 
-const move = (config, board) => {
+const makeConfig = (config, slots) => Object.freeze({
+  ...config,
+  maxIterationDepth: Math.floor(Math.log(config.iterationBudget) / Math.log(slots.length)) || 1
+})
+
+const move = (configParams, board) => {
   const stats = { iterations: 0 }
   const slots = freeSlots(board)
-  const res = evaluate(config, stats, 0)(board, freeSlots(board), slots)
-  return { ...res, ...stats }
+  const config = makeConfig(configParams, slots)
+  const res = evaluate(config, stats, 0)(board, slots)
+  return { ...res, ...stats, maxIterationDepth: config.maxIterationDepth }
 }
 
 module.exports = {

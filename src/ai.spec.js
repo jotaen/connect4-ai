@@ -8,6 +8,7 @@ const assertNextMove = t => {
   const defaultConfig = {
     winningLength: 4,
     players: [a, 0],
+    iterationBudget: 1000000000000000000,
   }
   const applicableConfig = { ...defaultConfig, ...t.config }
   const res = move(applicableConfig, t.board)
@@ -100,6 +101,53 @@ describe("AI", () => {
         [_,0,_],
         [0,a,_],
         [a,a,0],
+      ]},
+    ].forEach(assertNextMove)
+  })
+
+  it("Yields different results based on iteration budget", () => {
+    [
+      {config: {winningLength: 3, iterationBudget: 1},
+       expectation: {iterations: 4, slot: 2, score: 0.5, maxIterationDepth: 1},
+       board: [
+        [_,_,_],
+        [_,_,_],
+        [_,a,0],
+      ]},
+      {config: {winningLength: 3, iterationBudget: 10},
+       expectation: {iterations: 13, slot: 2, score: 0.5, maxIterationDepth: 2},
+       board: [
+        [_,_,_],
+        [_,_,_],
+        [_,a,0],
+      ]},
+      {config: {winningLength: 3, iterationBudget: 50},
+       expectation: {iterations: 34, slot: 2, score: 0.5, maxIterationDepth: 3},
+       board: [
+        [_,_,_],
+        [_,_,_],
+        [_,a,0],
+      ]},
+      {config: {winningLength: 3, iterationBudget: 100},
+       expectation: {iterations: 80, slot: 2, score: 0.5, maxIterationDepth: 4},
+       board: [
+        [_,_,_],
+        [_,_,_],
+        [_,a,0],
+      ]},
+      {config: {winningLength: 3, iterationBudget: 500},
+       expectation: {iterations: 143, slot: 2, score: 0.5, maxIterationDepth: 5},
+       board: [
+        [_,_,_],
+        [_,_,_],
+        [_,a,0],
+      ]},
+      {config: {winningLength: 3, iterationBudget: 1000},
+       expectation: {iterations: 99, slot: 1, score: 1, maxIterationDepth: 6},
+       board: [
+        [_,_,_],
+        [_,_,_],
+        [_,a,0],
       ]},
     ].forEach(assertNextMove)
   })
