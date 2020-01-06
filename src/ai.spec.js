@@ -39,7 +39,7 @@ describe("AI", () => {
       {config: {winningLength: 3},
        expectation: {iterations: 1, slot: 0},
        board: [
-        // other possible outcomes: draw or lose
+        // other possible outcomes: win, draw or lose
         [_,_,_],
         [a,_,_],
         [a,0,0],
@@ -70,7 +70,7 @@ describe("AI", () => {
       {config: {winningLength: 3},
        expectation: {iterations: 62, slot: 2},
        board: [
-        // othher possible outcomes: draw
+        // other possible outcomes: draw
         [_,_,_],
         [_,_,_],
         [_,0,a],

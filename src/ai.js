@@ -30,29 +30,34 @@ const score = (next, config, context, board) => {
 // :: bool -> [Edge] -> Edge
 const decide = (isMax) => isMax ? F.maxBy(R.prop("score")) : F.minBy(R.prop("score"))
 
+// :: (a -> Edge) -> [a] -> [Edge]
+const mapAlphaBeta = fn => R.compose(
+  R.tail,
+  R.scan((prev, curr) => {
+    const isAlpha = (prev && curr.context.isMax && prev.score === 1)
+    return isAlpha ? prev : fn(curr)
+  }, undefined),
+)
+
 // :: (………, [[any]], [Number]) -> Edge
 const evaluate = (config, stats, i) => (board, nextSlots) => R.compose(
   R.reduce((prev, curr) => {
-    const context = {
-      isIterationLimit: i >= config.maxIterationDepth,
-      isMax: isMaxOnTurn(config.players, i),
-    }
-    if (context.isMax && prev && prev.score === 1) {
-      return prev
-    }
-    const nextFn = R.compose(R.prop("score"), evaluate(config, stats, i+1))
-    const candidate = {
-      slot: curr.slot,
-      score: score(nextFn, config, context, curr.board)
-    }
-    if (!prev) {
-      return candidate
-    }
-    return decide(context.isMax)(prev, candidate)
+    return !prev ? curr : decide(isMaxOnTurn(config.players, i))(prev, curr)
   }, undefined),
+  mapAlphaBeta(curr => {
+    const nextFn = R.compose(R.prop("score"), evaluate(config, stats, i+1))
+    return {
+      slot: curr.slot,
+      score: score(nextFn, config, curr.context, curr.board)
+    }
+  }),
   R.map(slot => ({
     slot,
-    board: putIntoSlot(playerOnTurn(config.players, i), slot, board)
+    board: putIntoSlot(playerOnTurn(config.players, i), slot, board),
+    context: {
+      isIterationLimit: i >= config.maxIterationDepth,
+      isMax: isMaxOnTurn(config.players, i),
+    },
   })),
   F.peek(() => stats.iterations++),
 )(nextSlots)
