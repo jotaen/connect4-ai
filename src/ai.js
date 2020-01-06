@@ -76,12 +76,32 @@ const Node = (config, iDepth, board) => slot => {
   }
 }
 
+// :: (Config, Number) -> [NodeResult] -> [NodeResult]
+const deepening = (evalFn, config, board) => nodeResults => {
+  const shouldDeepen = R.both(
+    R.none(nr => nr.score === SCORE.WIN),
+    R.any(nr => nr.score === SCORE.UNKNOWN),
+  )(nodeResults)
+  if (!shouldDeepen) {
+    return nodeResults
+  }
+  config.canDeepen = false
+  config.maxIterationDepth = config.maxIterationDepth + 1
+  return R.map(nr => {
+    if (nr.score === SCORE.UNKNOWN && config.iterationCount < config.iterationBudget) {
+      return evalFn(config, 0)(board, [nr.slot])
+    }
+    return nr
+  })(nodeResults)
+}
+
 // :: Board -> [Number] -> [Number]
 const prioritiseSlots = board => R.sort(F.compareCloseTo(Math.floor(board[0].length * 0.5)))
 
-// :: (………, Board, [Number]) -> NodeResult
+// :: (Config, Number) -> Board, [Number]) -> NodeResult
 const evaluate = (config, iDepth) => (board, nextSlots) => R.compose(
   reconcile,
+  iDepth === 0 && config.canDeepen ? deepening(evaluate, config, board) : R.identity,
   mapWithAlphaBetaPruning(node => {
     const nextFn = R.compose(R.prop("score"), evaluate(config, iDepth+1))
     return NodeResult(
@@ -91,8 +111,8 @@ const evaluate = (config, iDepth) => (board, nextSlots) => R.compose(
     )
   }),
   R.map(Node(config, iDepth, board)),
-  F.peek(() => config.iterationCount++),
   prioritiseSlots(board),
+  F.peek(() => config.iterationCount++),
 )(nextSlots)
 
 const Config = (config, slots) => ({
@@ -101,6 +121,7 @@ const Config = (config, slots) => ({
   iterationBudget: config.iterationBudget,
   maxIterationDepth: Math.floor(Math.log(config.iterationBudget) / Math.log(slots.length)) || 1,
   iterationCount: 0,
+  canDeepen: true,
 })
 
 // :: (NodeResult, Config, {}) -> Move
@@ -121,5 +142,6 @@ const move = (configParams, board) => {
 }
 
 module.exports = {
-  move
+  move,
+  SCORE,
 }
