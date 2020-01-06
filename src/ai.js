@@ -32,26 +32,30 @@ const minimax = (next, config, node) => {
 }
 
 // :: [Node] -> Node
-const makeDecision = R.reduce((prev, curr) => {
+const reconcile = R.reduce((prev, curr) => {
   const decide = curr.isMax ? F.maxBy(R.prop("score")) : F.minBy(R.prop("score"))
   return !prev ? curr : decide(prev, curr)
 }, undefined)
 
 // :: (Node -> Node) -> [Node] -> [Node]
-const mapWithMaxPruning = fn => R.compose(
+const mapWithAlphaBetaPruning = evaluateFn => R.compose(
   R.tail,
-  R.scan((prevNode, currNode) => {
-    const shouldCutOff = (prevNode && currNode.isMax && prevNode.score === SCORE.WIN)
-    return shouldCutOff ? prevNode : fn(currNode)
-  }, undefined),
-)
+  R.scan((prevNode, node) => {
+    const shouldCutOff = (prevNode && (
+      (node.isMax && prevNode.score === SCORE.WIN)
+      || (!node.isMax && prevNode.score === SCORE.LOST)))
+    if (shouldCutOff) {
+      return node
+    }
+    return evaluateFn(node)
+}, undefined))
 
 // :: (Config, Number, Board) -> Number -> Node
 const Node = (config, iDepth, board) => slot => {
   const player = playerOnTurn(config.players, iDepth)
   const nextState = putIntoSlot(player, slot, board)
   return {
-    score: undefined,
+    score: SCORE.UNKNOWN,
     board: nextState.board,
     field: nextState.field,
     isIterationLimit: iDepth >= config.maxIterationDepth,
@@ -64,8 +68,8 @@ const prioritiseSlots = board => R.sort(F.compareCloseTo(Math.floor(board[0].len
 
 // :: (………, Board, [Number]) -> Node
 const evaluate = (config, stats, iDepth) => (board, nextSlots) => R.compose(
-  makeDecision,
-  mapWithMaxPruning(node => {
+  reconcile,
+  mapWithAlphaBetaPruning(node => {
     const nextFn = R.compose(R.prop("score"), evaluate(config, stats, iDepth+1))
     node.score = minimax(nextFn, config, node)
     return node
