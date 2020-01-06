@@ -56,6 +56,13 @@ const freeSlots = R.compose(
   R.nth(0),
 )
 
+// :: [[any]] -> bool
+const hasFreeSlots = R.compose(
+  ns => ns.length > 0,
+  R.filter(isNeutral),
+  R.nth(0),
+)
+
 // :: Field, [[any]] -> [[any]]
 const place = (Field, board) => R.compose(
   R.set(R.lensPath([Field.row, Field.slot]), Field.value),
@@ -74,6 +81,8 @@ module.exports = {
   create,
   Field,
   findWin,
+  hasWin,
   freeSlots,
+  hasFreeSlots,
   putIntoSlot,
 }

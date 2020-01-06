@@ -1,5 +1,5 @@
 const assert = require("assert")
-const {create, Field, findWin, freeSlots, putIntoSlot} = require("./board")
+const {create, Field, findWin, freeSlots, hasFreeSlots, putIntoSlot} = require("./board")
 const Fd = Field
 
 const assertWins = ({expected, board, winningLength = 4}) => {
@@ -132,7 +132,8 @@ describe("Board", () => {
   describe("status", () => {
     it("returns free slots", () => {
       [
-        {expected: [0, 1, 2, 3, 4, 5, 6], board: [
+        {expected: {slots: [0, 1, 2, 3, 4, 5, 6], hasSlots: true},
+         board: [
           [X,X,X,X,X,X,X],
           [X,X,X,X,X,X,X],
           [X,X,X,X,X,X,X],
@@ -140,7 +141,8 @@ describe("Board", () => {
           [X,X,X,X,X,X,X],
           [X,X,X,X,X,X,X],
         ]},
-        {expected: [0, 1, 2, 3, 4, 5, 6], board: [
+        {expected: {slots: [0, 1, 2, 3, 4, 5, 6], hasSlots: true},
+         board: [
           [X,X,X,X,X,X,X],
           [2,X,X,X,X,X,X],
           [2,X,X,X,X,1,X],
@@ -148,7 +150,8 @@ describe("Board", () => {
           [2,X,X,1,2,2,X],
           [1,1,1,1,2,2,X],
         ]},
-        {expected: [0, 3, 4, 5], board: [
+        {expected: {slots: [0, 3, 4, 5], hasSlots: true},
+         board: [
           [X,2,1,X,X,X,2],
           [2,1,1,1,1,2,2],
           [2,2,2,2,2,1,2],
@@ -156,7 +159,17 @@ describe("Board", () => {
           [2,1,2,1,2,2,2],
           [1,1,1,1,2,2,1],
         ]},
-        {expected: [], board: [
+        {expected: {slots: [3], hasSlots: true},
+         board: [
+          [1,2,1,X,2,1,2],
+          [2,1,1,1,1,2,2],
+          [2,2,2,2,2,1,2],
+          [2,1,1,1,1,2,1],
+          [2,1,2,1,2,2,2],
+          [1,1,1,1,2,2,1],
+        ]},
+        {expected: {slots: [], hasSlots: false},
+         board: [
           [1,2,1,1,1,1,1],
           [2,1,1,1,1,2,2],
           [2,2,2,2,2,1,2],
@@ -165,8 +178,10 @@ describe("Board", () => {
           [1,1,1,1,2,2,1],
         ]},
       ].forEach(({expected, board}) => {
-        const result = freeSlots(board)
-        assert.deepStrictEqual(result, expected)
+        const slots = freeSlots(board)
+        assert.deepStrictEqual(slots, expected.slots)
+        const hasSlots = hasFreeSlots(board)
+        assert.deepStrictEqual(hasSlots, expected.hasSlots)
       })
     })
 
