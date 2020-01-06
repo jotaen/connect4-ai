@@ -3,6 +3,13 @@ const D = require("./lib/debug")
 const R = require("ramda")
 const {freeSlots, putIntoSlot, isWin} = require("./board")
 
+const SCORE = {
+  WIN: 1,
+  LOST: -1,
+  DRAW: 0,
+  UNKNOWN: 0.5, // TODO
+}
+
 // :: ([any], Number) -> any
 const playerOnTurn = (players, i) => players[i%players.length]
 
@@ -12,19 +19,15 @@ const isMaxOnTurn = (players, i) => i%players.length === 0
 // :: (((Board, [Number]) -> Number), Board, Node) -> Number
 const minimax = (next, config, node) => {
   if (isWin(config.winningLength, node.board, node.field)) {
-    // Game ends with win/lose:
-    return node.isMax ? 1 : -1
+    return node.isMax ? SCORE.WIN : SCORE.LOST
   }
   const nextSlots = freeSlots(node.board)
   if (nextSlots.length === 0) {
-    // Game ends with draw:
-    return 0
+    return SCORE.DRAW
   }
-  // Game still open, max iteration depth reached:
   if (node.isIterationLimit) {
-    return 0.5
+    return SCORE.UNKNOWN
   }
-  // Game still open, continue searching:
   return next(node.board, nextSlots)
 }
 
@@ -38,7 +41,7 @@ const makeDecision = R.reduce((prev, curr) => {
 const mapAlphaBeta = fn => R.compose(
   R.tail,
   R.scan((prevNode, currNode) => {
-    const shouldCutOff = (prevNode && currNode.isMax && prevNode.score === 1)
+    const shouldCutOff = (prevNode && currNode.isMax && prevNode.score === SCORE.WIN)
     return shouldCutOff ? prevNode : fn(currNode)
   }, undefined),
 )
