@@ -1,5 +1,5 @@
 const assert = require("assert")
-const {create, Field, findWin, isWin, freeSlots, hasFreeSlots, putIntoSlot} = require("./board")
+const {Board, Field, findWin, isWin, freeSlots, hasFreeSlots, putIntoSlot} = require("./board")
 const Fd = Field
 
 const assertWins = ({expected, board, winningLength = 4}) => {
@@ -21,7 +21,7 @@ describe("Board", () => {
     it("initialises board with given dimensions", () => {
       const rows = 6
       const slots = 7
-      const board = create(rows, slots)
+      const board = Board(rows, slots)
       assert.strictEqual(board.length, rows)
       board.forEach(r => r.forEach(f => {
         assert.strictEqual(f, null)
@@ -29,7 +29,7 @@ describe("Board", () => {
     })
 
     it("creates distinct arrays (not references)", () => {
-      const board = create(6, 7)
+      const board = Board(6, 7)
       assert.notStrictEqual(board[0], board[1])
     })
   })

@@ -1,10 +1,10 @@
-const { putIntoSlot, create, freeSlots, findWin } = require("../board")
+const { putIntoSlot, Board, freeSlots, findWin } = require("../board")
 
 function Game(players, rows, slots, winningLength) {
   this._players = players;
   this._nextPlayerIt = 0
   this._winningLength = winningLength
-  this._board = create(rows, slots)
+  this._board = Board(rows, slots)
 };
 
 Game.prototype.players = function() {

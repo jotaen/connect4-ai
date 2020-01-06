@@ -1,6 +1,7 @@
 const F = require("./lib/F")
+const D = require("./lib/debug")
 const R = require("ramda")
-const {freeSlots, putIntoSlot, isWin, Field} = require("./board")
+const {freeSlots, putIntoSlot, isWin} = require("./board")
 
 // :: ([any], Number) -> any
 const playerOnTurn = (players, i) => players[i%players.length]
@@ -8,77 +9,90 @@ const playerOnTurn = (players, i) => players[i%players.length]
 // :: ([any], Number) -> Number
 const isMaxOnTurn = (players, i) => i%players.length === 0
 
-// :: (………) -> Number
-const minimax = (next, config, context, board) => {
-  if (isWin(config.winningLength, board, context.lastPlacement)) {
+// :: (((Board, [Number]) -> Number), Board, Node) -> Number
+const minimax = (next, config, node) => {
+  if (isWin(config.winningLength, node.board, node.field)) {
     // Game ends with win/lose:
-    return context.isMax ? 1 : -1
+    return node.isMax ? 1 : -1
   }
-  const nextSlots = freeSlots(board)
+  const nextSlots = freeSlots(node.board)
   if (nextSlots.length === 0) {
     // Game ends with draw:
     return 0
   }
   // Game still open, max iteration depth reached:
-  if (context.isIterationLimit) {
+  if (node.isIterationLimit) {
     return 0.5
   }
   // Game still open, continue searching:
-  return next(board, nextSlots)
+  return next(node.board, nextSlots)
 }
 
-// :: [Edge] -> Edge
+// :: [Node] -> Node
 const makeDecision = R.reduce((prev, curr) => {
-  const decide = curr.context.isMax ? F.maxBy(R.prop("score")) : F.minBy(R.prop("score"))
+  const decide = curr.isMax ? F.maxBy(R.prop("score")) : F.minBy(R.prop("score"))
   return !prev ? curr : decide(prev, curr)
 }, undefined)
 
-// :: (a -> Edge) -> [a] -> [Edge]
+// :: (Node -> Node) -> [Node] -> [Node]
 const mapAlphaBeta = fn => R.compose(
   R.tail,
-  R.scan((prev, curr) => {
-    const isAlpha = (prev && curr.context.isMax && prev.score === 1)
-    return isAlpha ? prev : fn(curr)
+  R.scan((prevNode, currNode) => {
+    const shouldCutOff = (prevNode && currNode.isMax && prevNode.score === 1)
+    return shouldCutOff ? prevNode : fn(currNode)
   }, undefined),
 )
 
-// :: (………, [[any]], [Number]) -> Edge
+const Node = () => ({
+  score: undefined,
+  board: nextState.board,
+  field: nextState.field,
+  isIterationLimit: i >= config.maxIterationDepth,
+  isMax: isMaxOnTurn(config.players, i),
+})
+
+// :: (………, Board, [Number]) -> Node
 const evaluate = (config, stats, i) => (board, nextSlots) => R.compose(
   makeDecision,
-  mapAlphaBeta(curr => {
+  mapAlphaBeta(node => {
     const nextFn = R.compose(R.prop("score"), evaluate(config, stats, i+1))
-    return {
-      slot: curr.field.slot,
-      score: minimax(nextFn, config, curr.context, curr.board),
-      context: curr.context,
-    }
+    node.score = minimax(nextFn, config, node)
+    return node
   }),
   R.map(slot => {
     const player = playerOnTurn(config.players, i)
     const nextState = putIntoSlot(player, slot, board)
     return {
+      score: undefined,
       board: nextState.board,
       field: nextState.field,
-      context: {
-        isIterationLimit: i >= config.maxIterationDepth,
-        isMax: isMaxOnTurn(config.players, i),
-        lastPlacement: Field(nextState.field.row, slot, player),
-      },
+      isIterationLimit: i >= config.maxIterationDepth,
+      isMax: isMaxOnTurn(config.players, i),
   }}),
   F.peek(() => stats.iterations++),
 )(nextSlots)
 
-const makeConfig = (config, slots) => Object.freeze({
-  ...config,
+const Config = (config, slots) => Object.freeze({
+  winningLength: config.winningLength,
+  players: config.players,
+  iterationBudget: config.iterationBudget,
   maxIterationDepth: Math.floor(Math.log(config.iterationBudget) / Math.log(slots.length)) || 1
 })
 
+const Move = (node, config, stats) => ({
+  slot: node.field.slot,
+  score: node.score,
+  maxIterationDepth: config.maxIterationDepth,
+  iterationCounter: stats.iterations,
+})
+
+// :: (Config.Params, Board) -> Move
 const move = (configParams, board) => {
   const stats = { iterations: 0 }
   const slots = freeSlots(board)
-  const config = makeConfig(configParams, slots)
-  const res = evaluate(config, stats, 0)(board, slots)
-  return { ...res, ...stats, maxIterationDepth: config.maxIterationDepth }
+  const config = Config(configParams, slots)
+  const node = evaluate(config, stats, 0)(board, slots)
+  return Move(node, config, stats)
 }
 
 module.exports = {
