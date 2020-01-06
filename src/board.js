@@ -1,5 +1,6 @@
 const R = require("ramda")
 const F = require("./lib/F")
+const D = require("./lib/debug")
 
 const NEUTRAL = null
 const isNeutral = R.equals(NEUTRAL)
@@ -7,42 +8,68 @@ const isNeutral = R.equals(NEUTRAL)
 const Field = (row, slot, value) => ({ row, slot, value })
 
 // :: [Field] -> bool
-const allValuesEqual = R.compose(
+const allValuesEqual = provider => R.compose(
   R.both(F.hasLength(1), R.none(isNeutral)),
   R.uniq(),
-  R.map(R.prop('value')),
+  R.map(provider)
 )
 
-// :: [Field] -> [Field]
-const seq = {
+// :: [[any]] -> [[any]]
+const seqs = {
   horizontal: R.identity,
   vertical: R.transpose,
   diagonalDown: F.transposeDiagonal,
   diagonalUp: R.compose(F.transposeDiagonal, R.reverse),
 }
 
-// :: [[any]] -> [[Field]]
-const boardValuesToFields = F.mapIndexed((ss, row) =>
-  F.mapIndexed((value, slot) => ({row, slot, value}), ss))
-
-// :: [[Field]] -> [[Field]]
+// :: [[any]] -> [[any]]
 const allEligibleSeqs = R.compose(
   R.unnest,
-  R.juxt([seq.horizontal, seq.vertical, seq.diagonalDown, seq.diagonalUp])
+  R.juxt([seqs.horizontal, seqs.vertical, seqs.diagonalDown, seqs.diagonalUp])
 )
 
-const toCandidates = winningLength => R.compose(
+// :: Number -> [[any]] -> [any]
+const findWinningSequence = (provider, winningLength) => R.compose(
+  R.find(allValuesEqual(provider)),
   R.chain(R.aperture(winningLength)),
   R.filter(fs => fs.length >= winningLength),
 )
 
+// :: [[any]] -> [[Field]]
+const boardValuesToFields = F.mapIndexed((ss, row) =>
+  F.mapIndexed((value, slot) => ({row, slot, value}), ss))
+
 // :: Number -> [[any]] -> [[Field]]
 const findWin = R.curry((winningLength, board) => R.compose(
   w => w || null,
-  R.find(allValuesEqual),
-  toCandidates(winningLength),
+  findWinningSequence(R.prop('value'), winningLength),
   allEligibleSeqs,
   boardValuesToFields,
+)(board))
+
+const diagonal = (x, y, k) => matrix => {
+  const step = (res, d) => {
+    const left = R.pathOr(NEUTRAL, [x-d, [y-(d*k)]], matrix)
+    const right = R.pathOr(NEUTRAL, [x+d, [y+(d*k)]], matrix)
+    const isBothOverflown = (left === null && right === null)
+    return isBothOverflown ? res : step([left, ...res, right], d+1)
+  }
+  return step([matrix[x][y]], 1)
+}
+
+// :: Field -> [[any]] -> [[any]]
+const eligibleSeqsForPlacement = (winningLength, placement) => R.juxt([
+  board => board[placement.row], // horizontal line
+  R.map(r => r[placement.slot]), // vertical line
+  diagonal(placement.row, placement.slot, 1),
+  diagonal(placement.row, placement.slot, -1),
+])
+
+// :: Number -> [[any]] -> Field -> bool
+const isWin = R.curry((winningLength, board, lastPlacement) => R.compose(
+  w => !!w,
+  findWinningSequence(R.identity, winningLength),
+  eligibleSeqsForPlacement(winningLength, lastPlacement),
 )(board))
 
 // Number, Number -> [[NEUTRAL]]
@@ -71,7 +98,11 @@ const place = (Field, board) => R.compose(
 
 // :: any, Number, [[any]] -> [[any]]
 const putIntoSlot = R.curry((value, slot, board) => R.compose(
-  row => row === -1 ? null : place({row, slot, value}, board),
+  field => field === null ? null : {
+    field,
+    board: place(field, board),
+  },
+  row => row === -1 ? null : Field(row, slot, value),
   R.findLastIndex(R.isNil),
   R.nth(slot),
   R.transpose,
@@ -81,7 +112,7 @@ module.exports = {
   create,
   Field,
   findWin,
-  hasWin,
+  isWin,
   freeSlots,
   hasFreeSlots,
   putIntoSlot,

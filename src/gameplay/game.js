@@ -18,11 +18,11 @@ Game.prototype.tryPut = function(player, slotId) {
   if (!Number.isInteger(slotId) || slotId < 0 || slotId > this._board[0].length-1) {
     throw "INVALID_SLOT"
   }
-  const nextBoard = putIntoSlot(player.id(), slotId, this._board)
-  if (nextBoard === null) {
+  const nextState = putIntoSlot(player.id(), slotId, this._board)
+  if (nextState === null) {
     throw "SLOT_IS_FULL"
   }
-  this._board = nextBoard
+  this._board = nextState.board
   const isLastPlayer = (this._nextPlayerIt === this._players.length-1)
   this._nextPlayerIt = isLastPlayer ? 0 : this._nextPlayerIt+1
 }

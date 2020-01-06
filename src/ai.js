@@ -1,6 +1,6 @@
 const F = require("./lib/F")
 const R = require("ramda")
-const {freeSlots, putIntoSlot, findWin} = require("./board")
+const {freeSlots, putIntoSlot, isWin, Field} = require("./board")
 
 // :: ([any], Number) -> any
 const playerOnTurn = (players, i) => players[i%players.length]
@@ -10,7 +10,7 @@ const isMaxOnTurn = (players, i) => i%players.length === 0
 
 // :: (………) -> Number
 const minimax = (next, config, context, board) => {
-  if (findWin(config.winningLength, board)) {
+  if (isWin(config.winningLength, board, context.lastPlacement)) {
     // Game ends with win/lose:
     return context.isMax ? 1 : -1
   }
@@ -48,19 +48,23 @@ const evaluate = (config, stats, i) => (board, nextSlots) => R.compose(
   mapAlphaBeta(curr => {
     const nextFn = R.compose(R.prop("score"), evaluate(config, stats, i+1))
     return {
-      slot: curr.slot,
+      slot: curr.field.slot,
       score: minimax(nextFn, config, curr.context, curr.board),
       context: curr.context,
     }
   }),
-  R.map(slot => ({
-    slot,
-    board: putIntoSlot(playerOnTurn(config.players, i), slot, board),
-    context: {
-      isIterationLimit: i >= config.maxIterationDepth,
-      isMax: isMaxOnTurn(config.players, i),
-    },
-  })),
+  R.map(slot => {
+    const player = playerOnTurn(config.players, i)
+    const nextState = putIntoSlot(player, slot, board)
+    return {
+      board: nextState.board,
+      field: nextState.field,
+      context: {
+        isIterationLimit: i >= config.maxIterationDepth,
+        isMax: isMaxOnTurn(config.players, i),
+        lastPlacement: Field(nextState.field.row, slot, player),
+      },
+  }}),
   F.peek(() => stats.iterations++),
 )(nextSlots)
 
