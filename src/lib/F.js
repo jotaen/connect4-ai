@@ -33,6 +33,9 @@ const transposeDiagonal = xxs => R.compose(
   mapIndexed((xs, i) => [[xxs.length-i-1, i], xs]),
 )(xxs)
 
+// :: Number -> ((Number, Number) -> Number) -> [Number]
+const compareCloseTo = pivot => (a, b) => (Math.abs(a - pivot) - Math.abs(b - pivot) || b - a)
+
 module.exports = {
   mapIndexed,
   transposeDiagonal,
@@ -40,4 +43,5 @@ module.exports = {
   peek,
   maxBy,
   minBy,
+  compareCloseTo,
 }

@@ -1,4 +1,5 @@
 const assert = require("assert")
+const R = require("ramda")
 const F = require("./F")
 
 describe("F (functional programming utility)", () => {
@@ -30,6 +31,22 @@ describe("F (functional programming utility)", () => {
         -99, 44
       ),
         44
+      )
+    })
+  })
+
+  describe("compareCloseTo", () => {
+    it("can be used to sort array numbers around specific values", () => {
+      assert.deepStrictEqual(R.sort(F.compareCloseTo(3))(
+        [0, 1, 2, 3, 4, 5]
+      ),
+        [3, 4, 2, 5, 1, 0]
+      )
+
+      assert.deepStrictEqual(R.sort(F.compareCloseTo(1))(
+        [0, 1, 2, 3, 4, 5]
+      ),
+        [1, 2, 0, 3, 4, 5]
       )
     })
   })
