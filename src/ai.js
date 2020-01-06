@@ -11,10 +11,10 @@ const SCORE = {
 }
 
 // :: ([any], Number) -> any
-const playerOnTurn = (players, i) => players[i%players.length]
+const playerOnTurn = (players, iDepth) => players[iDepth%players.length]
 
 // :: ([any], Number) -> Number
-const isMaxOnTurn = (players, i) => i%players.length === 0
+const isMaxOnTurn = (players, iDepth) => iDepth%players.length === 0
 
 // :: (((Board, [Number]) -> Number), Board, Node) -> Number
 const minimax = (next, config, node) => {
@@ -38,7 +38,7 @@ const makeDecision = R.reduce((prev, curr) => {
 }, undefined)
 
 // :: (Node -> Node) -> [Node] -> [Node]
-const mapAlphaBeta = fn => R.compose(
+const mapWithMaxPruning = fn => R.compose(
   R.tail,
   R.scan((prevNode, currNode) => {
     const shouldCutOff = (prevNode && currNode.isMax && prevNode.score === SCORE.WIN)
@@ -46,35 +46,31 @@ const mapAlphaBeta = fn => R.compose(
   }, undefined),
 )
 
-const Node = () => ({
-  score: undefined,
-  board: nextState.board,
-  field: nextState.field,
-  isIterationLimit: i >= config.maxIterationDepth,
-  isMax: isMaxOnTurn(config.players, i),
-})
+// :: (Config, Number, Board) -> Number -> Node
+const Node = (config, iDepth, board) => slot => {
+  const player = playerOnTurn(config.players, iDepth)
+  const nextState = putIntoSlot(player, slot, board)
+  return {
+    score: undefined,
+    board: nextState.board,
+    field: nextState.field,
+    isIterationLimit: iDepth >= config.maxIterationDepth,
+    isMax: isMaxOnTurn(config.players, iDepth),
+  }
+}
 
 // :: Board -> [Number] -> [Number]
 const prioritiseSlots = board => R.sort(F.compareCloseTo(Math.floor(board[0].length * 0.5)))
 
 // :: (………, Board, [Number]) -> Node
-const evaluate = (config, stats, i) => (board, nextSlots) => R.compose(
+const evaluate = (config, stats, iDepth) => (board, nextSlots) => R.compose(
   makeDecision,
-  mapAlphaBeta(node => {
-    const nextFn = R.compose(R.prop("score"), evaluate(config, stats, i+1))
+  mapWithMaxPruning(node => {
+    const nextFn = R.compose(R.prop("score"), evaluate(config, stats, iDepth+1))
     node.score = minimax(nextFn, config, node)
     return node
   }),
-  R.map(slot => {
-    const player = playerOnTurn(config.players, i)
-    const nextState = putIntoSlot(player, slot, board)
-    return {
-      score: undefined,
-      board: nextState.board,
-      field: nextState.field,
-      isIterationLimit: i >= config.maxIterationDepth,
-      isMax: isMaxOnTurn(config.players, i),
-  }}),
+  R.map(Node(config, iDepth, board)),
   F.peek(() => stats.iterations++),
   prioritiseSlots(board),
 )(nextSlots)
