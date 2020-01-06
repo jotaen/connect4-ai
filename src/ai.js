@@ -9,7 +9,7 @@ const playerOnTurn = (players, i) => players[i%players.length]
 const isMaxOnTurn = (players, i) => i%players.length === 0
 
 // :: (………) -> Number
-const score = (next, config, context, board) => {
+const minimax = (next, config, context, board) => {
   if (findWin(config.winningLength, board)) {
     // Game ends with win/lose:
     return context.isMax ? 1 : -1
@@ -27,8 +27,11 @@ const score = (next, config, context, board) => {
   return next(board, nextSlots)
 }
 
-// :: bool -> [Edge] -> Edge
-const decide = (isMax) => isMax ? F.maxBy(R.prop("score")) : F.minBy(R.prop("score"))
+// :: [Edge] -> Edge
+const makeDecision = R.reduce((prev, curr) => {
+  const decide = curr.context.isMax ? F.maxBy(R.prop("score")) : F.minBy(R.prop("score"))
+  return !prev ? curr : decide(prev, curr)
+}, undefined)
 
 // :: (a -> Edge) -> [a] -> [Edge]
 const mapAlphaBeta = fn => R.compose(
@@ -41,14 +44,13 @@ const mapAlphaBeta = fn => R.compose(
 
 // :: (………, [[any]], [Number]) -> Edge
 const evaluate = (config, stats, i) => (board, nextSlots) => R.compose(
-  R.reduce((prev, curr) => {
-    return !prev ? curr : decide(isMaxOnTurn(config.players, i))(prev, curr)
-  }, undefined),
+  makeDecision,
   mapAlphaBeta(curr => {
     const nextFn = R.compose(R.prop("score"), evaluate(config, stats, i+1))
     return {
       slot: curr.slot,
-      score: score(nextFn, config, curr.context, curr.board)
+      score: minimax(nextFn, config, curr.context, curr.board),
+      context: curr.context,
     }
   }),
   R.map(slot => ({
