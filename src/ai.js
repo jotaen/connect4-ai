@@ -80,10 +80,10 @@ const Node = (config, iDepth, board) => slot => {
 const prioritiseSlots = board => R.sort(F.compareCloseTo(Math.floor(board[0].length * 0.5)))
 
 // :: (………, Board, [Number]) -> NodeResult
-const evaluate = (config, stats, iDepth) => (board, nextSlots) => R.compose(
+const evaluate = (config, iDepth) => (board, nextSlots) => R.compose(
   reconcile,
   mapWithAlphaBetaPruning(node => {
-    const nextFn = R.compose(R.prop("score"), evaluate(config, stats, iDepth+1))
+    const nextFn = R.compose(R.prop("score"), evaluate(config, iDepth+1))
     return NodeResult(
       node.field.slot,
       minimax(nextFn, config, node),
@@ -91,33 +91,33 @@ const evaluate = (config, stats, iDepth) => (board, nextSlots) => R.compose(
     )
   }),
   R.map(Node(config, iDepth, board)),
-  F.peek(() => stats.iterations++),
+  F.peek(() => config.iterationCount++),
   prioritiseSlots(board),
 )(nextSlots)
 
-const Config = (config, slots) => Object.freeze({
+const Config = (config, slots) => ({
   winningLength: config.winningLength,
   players: config.players,
   iterationBudget: config.iterationBudget,
-  maxIterationDepth: Math.floor(Math.log(config.iterationBudget) / Math.log(slots.length)) || 1
+  maxIterationDepth: Math.floor(Math.log(config.iterationBudget) / Math.log(slots.length)) || 1,
+  iterationCount: 0,
 })
 
 // :: (NodeResult, Config, {}) -> Move
-const Move = (nodeResult, config, stats) => ({
+const Move = (nodeResult, config) => ({
   slot: nodeResult.slot,
   score: nodeResult.score,
   slotScores: nodeResult.slotScores,
   maxIterationDepth: config.maxIterationDepth,
-  iterationCounter: stats.iterations,
+  iterationCount: config.iterationCount,
 })
 
 // :: (Config.Params, Board) -> Move
 const move = (configParams, board) => {
-  const stats = { iterations: 0 }
   const slots = freeSlots(board)
   const config = Config(configParams, slots)
-  const nodeResult = evaluate(config, stats, 0)(board, slots)
-  return Move(nodeResult, config, stats)
+  const nodeResult = evaluate(config, 0)(board, slots)
+  return Move(nodeResult, config)
 }
 
 module.exports = {
