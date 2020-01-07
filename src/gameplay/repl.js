@@ -62,6 +62,9 @@ const repl = () => {
   if (s.win) {
     const winner = game.players().find(p => p.id() === s.win[0].value)
     console.log("Winner: " + winner.name())
+    const boardWithHighlight = game.board()
+    s.win.forEach(fd => boardWithHighlight[fd.row][fd.slot] = "♦︎")
+    console.log(board2string(SLOT_OFFSET, boardWithHighlight))
   } else {
     console.log("Game ends with draw")
   }

@@ -98,7 +98,7 @@ const deepening = (evalFn, config, board) => nodeResults => {
 // :: Board -> [Number] -> [Number]
 const prioritiseSlots = board => R.sort(F.compareCloseTo(Math.floor(board[0].length * 0.5)))
 
-// :: (Config, Number) -> Board, [Number]) -> NodeResult
+// :: (Config, Number) -> (Board, [Number]) -> NodeResult
 const evaluate = (config, iDepth) => (board, nextSlots) => R.compose(
   reconcile,
   iDepth === 0 && config.canDeepen ? deepening(evaluate, config, board) : R.identity,
