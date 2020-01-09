@@ -11,10 +11,10 @@ const SCORE = {
 }
 
 // :: ([any], Number) -> any
-const playerOnTurn = (players, iDepth) => players[iDepth%players.length]
+const playerOnTurn = (players, itDepth) => players[itDepth%players.length]
 
 // :: ([any], Number) -> Number
-const isMaxOnTurn = (players, iDepth) => iDepth%players.length === 0
+const isMaxOnTurn = (players, itDepth) => itDepth%players.length === 0
 
 // :: (((Board, [Number]) -> Number), Config, Node) -> Number
 const score = (next, config, node) => {
@@ -60,17 +60,19 @@ const mapWithPruning = evaluateFn => R.compose(
 }, undefined))
 
 // :: (Config, Number, Board) -> Number -> Node
-const Node = (config, iDepth, board) => slot => {
-  const player = playerOnTurn(config.players, iDepth)
+const Node = (config, itDepth, board) => slot => {
+  const player = playerOnTurn(config.players, itDepth)
   const nextState = putIntoSlot(player, slot, board)
   return {
     board: nextState.board,
     field: nextState.field,
-    isIterationLimit: iDepth >= config.maxIterationDepth,
-    isMax: isMaxOnTurn(config.players, iDepth),
-    depth: iDepth,
+    isIterationLimit: itDepth >= config.maxIterationDepth,
+    isMax: isMaxOnTurn(config.players, itDepth),
+    depth: itDepth,
   }
 }
+
+const skipPostProcess = () => R.identity
 
 // :: (...) -> [NodeResult] -> [NodeResult]
 const deepening = (evalFn, config, board) => nodeResults => {
@@ -81,11 +83,10 @@ const deepening = (evalFn, config, board) => nodeResults => {
   if (!shouldDeepen) {
     return nodeResults
   }
-  config.canDeepen = false
   config.maxIterationDepth = config.maxIterationDepth + 1
   return R.map(nr => {
     if (nr.score === SCORE.UNKNOWN && config.iterationCount < config.iterationBudget) {
-      return evalFn(config, 0)(board, [nr.slot])
+      return evalFn(config, skipPostProcess, 0)(board, [nr.slot])
     }
     return nr
   })(nodeResults)
@@ -94,19 +95,19 @@ const deepening = (evalFn, config, board) => nodeResults => {
 // :: Board -> [Number] -> [Number]
 const prioritiseSlots = board => R.sort(F.compareCloseTo(Math.floor(board[0].length * 0.5)))
 
-// :: (Config, Number) -> (Board, [Number]) -> NodeResult
-const evaluate = (config, iDepth) => (board, nextSlots) => R.compose(
+// :: (Config, ([NodeResult] -> [NodeResult]), Number) -> (Board, [Number]) -> NodeResult
+const evaluate = (config, postprocess, itDepth) => (board, nextSlots) => R.compose(
   findSuccessor,
-  iDepth === 0 && config.canDeepen ? deepening(evaluate, config, board) : R.identity,
+  postprocess(evaluate, config, board),
   mapWithPruning(node => {
-    const nextFn = R.compose(R.prop("score"), evaluate(config, iDepth+1))
+    const nextFn = R.compose(R.prop("score"), evaluate(config, skipPostProcess, itDepth+1))
     return NodeResult(
       node.field.slot,
       score(nextFn, config, node),
       node.isMax,
     )
   }),
-  R.map(Node(config, iDepth, board)),
+  R.map(Node(config, itDepth, board)),
   prioritiseSlots(board),
   F.peek(() => config.iterationCount++),
 )(nextSlots)
@@ -117,7 +118,6 @@ const Config = (config, slots) => ({
   iterationBudget: config.iterationBudget,
   maxIterationDepth: Math.floor(Math.log(config.iterationBudget) / Math.log(slots.length)) || 1,
   iterationCount: 0,
-  canDeepen: true,
 })
 
 // :: (NodeResult, Config) -> Move
@@ -136,7 +136,7 @@ const Move = (nodeResult, config) => ({
 const move = (configParams, board) => {
   const slots = freeSlots(board)
   const config = Config(configParams, slots)
-  const nodeResult = evaluate(config, 0)(board, slots)
+  const nodeResult = evaluate(config, deepening, 0)(board, slots)
   return Move(nodeResult, config)
 }
 
