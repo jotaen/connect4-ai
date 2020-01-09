@@ -7,7 +7,7 @@ const SCORE = {
   WIN: 1,
   LOST: -1,
   DRAW: 0,
-  UNKNOWN: 0.5, // TODO
+  UNKNOWN: null,
 }
 
 // :: ([any], Number) -> any
