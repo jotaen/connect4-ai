@@ -1,5 +1,5 @@
 const assert = require("assert")
-const { move, SCORE } = require("./ai")
+const { move } = require("./ai")
 
 const _ = null
 const a = 1 // ai

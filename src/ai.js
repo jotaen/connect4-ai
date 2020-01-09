@@ -80,16 +80,19 @@ const deepening = (evalFn, config, board) => nodeResults => {
     R.none(nr => nr.score > SCORE.DRAW),
     R.any(nr => nr.score === SCORE.UNKNOWN),
   )(nodeResults)
-  if (!shouldDeepen) {
+  if (!shouldDeepen || config.iterationCount >= config.iterationBudget) {
     return nodeResults
   }
   config.maxIterationDepth = config.maxIterationDepth + 1
-  return R.map(nr => {
-    if (nr.score === SCORE.UNKNOWN && config.iterationCount < config.iterationBudget) {
-      return evalFn(config, skipPostProcess, 0)(board, [nr.slot])
-    }
-    return nr
-  })(nodeResults)
+  return R.compose(
+    deepening(evalFn, config, board),
+    R.map(nr => {
+      if (nr.score === SCORE.UNKNOWN && config.iterationCount < config.iterationBudget) {
+        return evalFn(config, skipPostProcess, 0)(board, [nr.slot])
+      }
+      return nr
+    }),
+  )(nodeResults)
 }
 
 // :: Board -> [Number] -> [Number]
