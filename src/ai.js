@@ -19,7 +19,8 @@ const isMaxOnTurn = (players, iDepth) => iDepth%players.length === 0
 // :: (((Board, [Number]) -> Number), Board, Node) -> Number
 const minimax = (next, config, node) => {
   if (isWin(config.winningLength, node.board, node.field)) {
-    return node.isMax ? SCORE.WIN : SCORE.LOST
+    const value = node.isMax ? SCORE.WIN : SCORE.LOST
+    return value / (node.depth + 1)
   }
   const nextSlots = freeSlots(node.board)
   if (nextSlots.length === 0) {
@@ -50,18 +51,18 @@ const reconcile = R.converge((successor, allScores) => NodeResult(
   successor.slot, successor.score, successor.isMax, allScores
 ), [findSuccessor, R.map(nr => [nr.slot, nr.score])])
 
-// :: (Node -> Node) -> [Node] -> [NodeResult]
+// :: (Node -> NodeResult) -> [Node] -> [NodeResult]
 const mapWithAlphaBetaPruning = evaluateFn => R.compose(
   R.tail,
-  R.scan((prevNode, node) => {
-    const shouldCutOff = (prevNode && (
-      (node.isMax && prevNode.score === SCORE.WIN)
-      || (!node.isMax && prevNode.score === SCORE.LOST)
+  R.scan((prev, curr) => {
+    const shouldCutOff = (prev && (
+      (curr.isMax && prev.score > SCORE.DRAW)
+      || (!curr.isMax && prev.score < SCORE.DRAW)
       ))
     if (shouldCutOff) {
-      return NodeResult(node.field.slot, SCORE.UNKNOWN, node.isMax)
+      return NodeResult(curr.field.slot, SCORE.UNKNOWN, curr.isMax)
     }
-    return evaluateFn(node)
+    return evaluateFn(curr)
 }, undefined))
 
 // :: (Config, Number, Board) -> Number -> Node
@@ -73,13 +74,14 @@ const Node = (config, iDepth, board) => slot => {
     field: nextState.field,
     isIterationLimit: iDepth >= config.maxIterationDepth,
     isMax: isMaxOnTurn(config.players, iDepth),
+    depth: iDepth,
   }
 }
 
 // :: (Config, Number) -> [NodeResult] -> [NodeResult]
 const deepening = (evalFn, config, board) => nodeResults => {
   const shouldDeepen = R.both(
-    R.none(nr => nr.score === SCORE.WIN),
+    R.none(nr => nr.score > SCORE.WIN),
     R.any(nr => nr.score === SCORE.UNKNOWN),
   )(nodeResults)
   if (!shouldDeepen) {
@@ -128,9 +130,13 @@ const Config = (config, slots) => ({
 const Move = (nodeResult, config) => ({
   slot: nodeResult.slot,
   score: nodeResult.score,
-  slotScores: nodeResult.slotScores,
+  slotScores: nodeResult.slotScores, // TODO
   maxIterationDepth: config.maxIterationDepth,
   iterationCount: config.iterationCount,
+  isWin: nodeResult.score > SCORE.DRAW,
+  isDraw: nodeResult.score === SCORE.DRAW,
+  isLost: nodeResult.score < SCORE.DRAW,
+  isUnknown: nodeResult.score === SCORE.UNKNOWN,
 })
 
 // :: (Config.Params, Board) -> Move
