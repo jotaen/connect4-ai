@@ -29,7 +29,7 @@ describe("AI", () => {
         [_,0,a],
       ]},
       {config: {winningLength: 3},
-       expectation: {iterationCount: 15, slot: 2, isWin: true},
+       expectation: {iterationCount: 7, slot: 2, isWin: true},
        board: [
         // other possible outcomes: draw or lose
         [_,_,_],
@@ -37,7 +37,7 @@ describe("AI", () => {
         [a,a,_],
       ]},
       {config: {winningLength: 3},
-       expectation: {iterationCount: 17, slot: 0, isWin: true},
+       expectation: {iterationCount: 9, slot: 0, isWin: true},
        board: [
         // other possible outcomes: win, draw or lose
         [_,_,_],
@@ -60,7 +60,7 @@ describe("AI", () => {
         [0,_,a],
       ]},
       {config: {winningLength: 3},
-       expectation: {iterationCount: 14, slot: 1, isWin: true},
+       expectation: {iterationCount: 10, slot: 1, isWin: true},
        board: [
         // other possible outcomes: draw or win
         [a,_,_],
@@ -103,14 +103,14 @@ describe("AI", () => {
   it("Returns the best slot that can potentially lead to winning", () => {
     [
       {config: {winningLength: 3},
-       expectation: {iterationCount: 184, slot: 1, isWin: true},
+       expectation: {iterationCount: 111, slot: 1, isWin: true},
        board: [
         [_,_,_],
         [_,_,_],
         [_,a,0],
       ]},
       {config: {winningLength: 3},
-       expectation: {iterationCount: 29, slot: 1, isWin: true},
+       expectation: {iterationCount: 19, slot: 1, isWin: true},
        board: [
         [_,_,_],
         [_,_,a],
@@ -164,7 +164,7 @@ describe("AI", () => {
         [_,a,0],
       ]},
       {config: {winningLength: 3, iterationBudget: 1000},
-       expectation: {iterationCount: 184, slot: 1, isWin: true},
+       expectation: {iterationCount: 111, slot: 1, isWin: true},
        board: [
         [_,_,_],
         [_,_,_],

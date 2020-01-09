@@ -75,7 +75,7 @@ const Node = (config, iDepth, board) => slot => {
 // :: (Config, Number) -> [NodeResult] -> [NodeResult]
 const deepening = (evalFn, config, board) => nodeResults => {
   const shouldDeepen = R.both(
-    R.none(nr => nr.score > SCORE.WIN),
+    R.none(nr => nr.score > SCORE.DRAW),
     R.any(nr => nr.score === SCORE.UNKNOWN),
   )(nodeResults)
   if (!shouldDeepen) {
