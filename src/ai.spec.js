@@ -29,7 +29,7 @@ describe("AI", () => {
         [_,0,a],
       ]},
       {config: {winningLength: 3},
-       expectation: {iterationCount: 14, slot: 2, isWin: true},
+       expectation: {iterationCount: 15, slot: 2, isWin: true},
        board: [
         // other possible outcomes: draw or lose
         [_,_,_],
@@ -37,7 +37,7 @@ describe("AI", () => {
         [a,a,_],
       ]},
       {config: {winningLength: 3},
-       expectation: {iterationCount: 16, slot: 0, isWin: true},
+       expectation: {iterationCount: 17, slot: 0, isWin: true},
        board: [
         // other possible outcomes: win, draw or lose
         [_,_,_],
@@ -52,7 +52,7 @@ describe("AI", () => {
     // can theoretically still be draw or win for the AI
     [
       {config: {winningLength: 3},
-       expectation: {iterationCount: 25, slot: 0, isWin: true},
+       expectation: {iterationCount: 34, slot: 0, isWin: true},
        board: [
         // other possible outcomes: draw or win
         [_,_,_],
@@ -60,7 +60,7 @@ describe("AI", () => {
         [0,_,a],
       ]},
       {config: {winningLength: 3},
-       expectation: {iterationCount: 12, slot: 1, isWin: true},
+       expectation: {iterationCount: 14, slot: 1, isWin: true},
        board: [
         // other possible outcomes: draw or win
         [a,_,_],
@@ -103,14 +103,14 @@ describe("AI", () => {
   it("Returns the best slot that can potentially lead to winning", () => {
     [
       {config: {winningLength: 3},
-       expectation: {iterationCount: 146, slot: 1, isWin: true},
+       expectation: {iterationCount: 184, slot: 1, isWin: true},
        board: [
         [_,_,_],
         [_,_,_],
         [_,a,0],
       ]},
       {config: {winningLength: 3},
-       expectation: {iterationCount: 28, slot: 1, isWin: true},
+       expectation: {iterationCount: 29, slot: 1, isWin: true},
        board: [
         [_,_,_],
         [_,_,a],
@@ -129,42 +129,42 @@ describe("AI", () => {
   it("Yields different results based on iteration budget", () => {
     [
       {config: {winningLength: 3, iterationBudget: 1},
-       expectation: {iterationCount: 4, slot: 0, isUnknown: true},
+       expectation: {iterationCount: 4, slot: 1, isUnknown: true},
        board: [
         [_,_,_],
         [_,_,_],
         [_,a,0],
       ]},
       {config: {winningLength: 3, iterationBudget: 10},
-       expectation: {iterationCount: 13, slot: 0, isUnknown: true},
+       expectation: {iterationCount: 13, slot: 1, isUnknown: true},
        board: [
         [_,_,_],
         [_,_,_],
         [_,a,0],
       ]},
       {config: {winningLength: 3, iterationBudget: 50},
-       expectation: {iterationCount: 51, slot: 0, isUnknown: true},
+       expectation: {iterationCount: 52, slot: 1, isUnknown: true},
        board: [
         [_,_,_],
         [_,_,_],
         [_,a,0],
       ]},
       {config: {winningLength: 3, iterationBudget: 100},
-       expectation: {iterationCount: 150, slot: 0, isUnknown: true},
+       expectation: {iterationCount: 104, slot: 1, isUnknown: true},
        board: [
         [_,_,_],
         [_,_,_],
         [_,a,0],
       ]},
       {config: {winningLength: 3, iterationBudget: 500},
-       expectation: {iterationCount: 206, slot: 1, isWin: true},
+       expectation: {iterationCount: 248, slot: 1, isWin: true},
        board: [
         [_,_,_],
         [_,_,_],
         [_,a,0],
       ]},
       {config: {winningLength: 3, iterationBudget: 1000},
-       expectation: {iterationCount: 146, slot: 1, isWin: true},
+       expectation: {iterationCount: 184, slot: 1, isWin: true},
        board: [
         [_,_,_],
         [_,_,_],

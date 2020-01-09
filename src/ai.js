@@ -42,7 +42,7 @@ const NodeResult = (slot, score, isMax) => ({
 // :: [NodeResult] -> NodeResult
 const findSuccessor = R.reduce((prev, curr) => {
   const decide = curr.isMax ? F.maxBy(R.prop("score")) : F.minBy(R.prop("score"))
-  return !prev ? curr : decide(prev, curr)
+  return !prev ? curr : decide(curr, prev)
 }, undefined)
 
 // :: (Node -> NodeResult) -> [Node] -> [NodeResult]
@@ -51,7 +51,7 @@ const mapWithAlphaBetaPruning = evaluateFn => R.compose(
   R.scan((prev, curr) => {
     const shouldCutOff = (prev && (
       (curr.isMax && prev.score > SCORE.DRAW)
-      || (!curr.isMax && prev.score < SCORE.DRAW)
+      || (!curr.isMax && prev.score === SCORE.LOST) // only prune when loss is immediate
       ))
     if (shouldCutOff) {
       return NodeResult(curr.field.slot, SCORE.UNKNOWN, curr.isMax)
