@@ -33,11 +33,10 @@ const minimax = (next, config, node) => {
 }
 
 // :: (Number, Number, bool) -> NodeResult
-const NodeResult = (slot, score, isMax, slotScores) => ({
+const NodeResult = (slot, score, isMax) => ({
   slot,
   score,
   isMax,
-  slotScores,
 })
 
 // :: [NodeResult] -> NodeResult
@@ -45,11 +44,6 @@ const findSuccessor = R.reduce((prev, curr) => {
   const decide = curr.isMax ? F.maxBy(R.prop("score")) : F.minBy(R.prop("score"))
   return !prev ? curr : decide(prev, curr)
 }, undefined)
-
-// :: [NodeResult] -> NodeResult
-const reconcile = R.converge((successor, allScores) => NodeResult(
-  successor.slot, successor.score, successor.isMax, allScores
-), [findSuccessor, R.map(nr => [nr.slot, nr.score])])
 
 // :: (Node -> NodeResult) -> [Node] -> [NodeResult]
 const mapWithAlphaBetaPruning = evaluateFn => R.compose(
@@ -102,7 +96,7 @@ const prioritiseSlots = board => R.sort(F.compareCloseTo(Math.floor(board[0].len
 
 // :: (Config, Number) -> (Board, [Number]) -> NodeResult
 const evaluate = (config, iDepth) => (board, nextSlots) => R.compose(
-  reconcile,
+  findSuccessor,
   iDepth === 0 && config.canDeepen ? deepening(evaluate, config, board) : R.identity,
   mapWithAlphaBetaPruning(node => {
     const nextFn = R.compose(R.prop("score"), evaluate(config, iDepth+1))
@@ -130,7 +124,6 @@ const Config = (config, slots) => ({
 const Move = (nodeResult, config) => ({
   slot: nodeResult.slot,
   score: nodeResult.score,
-  slotScores: nodeResult.slotScores, // TODO
   maxIterationDepth: config.maxIterationDepth,
   iterationCount: config.iterationCount,
   isWin: nodeResult.score > SCORE.DRAW,
