@@ -1,5 +1,5 @@
 const assert = require("assert")
-const {Board, Field, findWin, isWin, freeSlots, hasFreeSlots, putIntoSlot} = require("./board")
+const {Board, Field, findWin, isWin, freeSlots, hasFreeSlots, putIntoSlot, hash} = require("./board")
 const Fd = Field
 
 const assertWins = ({expected, board, winningLength = 4}) => {
@@ -398,6 +398,29 @@ describe("Board", () => {
       // new board is not affected by old board’s changes:
       board[4][4] = false
       assert.strictEqual(newBoard[4][4], X)
+    })
+  })
+
+  describe.only("hashing", () => {
+    it("creates a hash value for a given board", () => {
+      const board = [
+        [1,X,X,X,X,1,X],
+        [2,X,X,X,X,2,X],
+        [2,X,X,X,X,1,X],
+        [2,X,X,X,1,2,X],
+        [2,X,X,1,2,2,X],
+        [1,1,1,1,2,2,X],
+      ]
+      assert.strictEqual(
+        hash(board),
+        28447102327341079936678168218617757462783855904710447179705471n
+      )
+
+      board[3][2] = 5
+      assert.strictEqual(
+        hash(board),
+        28447102327341079936678168218617760958051955899935639875556676n
+      )
     })
   })
 })
