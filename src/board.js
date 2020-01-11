@@ -108,17 +108,13 @@ const putIntoSlot = R.curry((value, slot, board) => R.compose(
   R.transpose,
 )(board))
 
-// :: Board -> BigInt
+// :: Board -> String
 const hash = board => {
-  const vs = R.unnest(board)
-  let hash = 0n
-  for (let i = 0; i < vs.length; i++) {
-    const chr = BigInt(vs[i]+1 || 0)
-    hash = ((hash << 5n) - hash) + chr
-    hash |= 0n
-  }
-  return hash
-};
+  // Implementation optimised for speed
+  return [].concat.apply([], board)
+    .map(v => v === null ? 0 : v+1)
+    .join("")
+}
 
 module.exports = {
   Board,

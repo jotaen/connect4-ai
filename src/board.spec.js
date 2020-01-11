@@ -401,7 +401,7 @@ describe("Board", () => {
     })
   })
 
-  describe.only("hashing", () => {
+  describe("hashing", () => {
     it("creates a hash value for a given board", () => {
       const board = [
         [1,X,X,X,X,1,X],
@@ -413,13 +413,13 @@ describe("Board", () => {
       ]
       assert.strictEqual(
         hash(board),
-        28447102327341079936678168218617757462783855904710447179705471n
+        "200002030000303000020300023030023302222330"
       )
 
       board[3][2] = 5
       assert.strictEqual(
         hash(board),
-        28447102327341079936678168218617760958051955899935639875556676n
+        "200002030000303000020306023030023302222330"
       )
     })
   })
