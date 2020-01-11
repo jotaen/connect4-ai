@@ -1,7 +1,7 @@
-const F = require("./lib/F")
-const D = require("./lib/debug")
+const F = require("../lib/F")
+const D = require("../lib/debug")
 const R = require("ramda")
-const {freeSlots, putIntoSlot, isWin, hash} = require("./board")
+const {freeSlots, putIntoSlot, isWin, hash} = require("../board")
 
 const SCORE = {
   WIN: 1,
