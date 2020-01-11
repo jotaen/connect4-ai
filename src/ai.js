@@ -1,7 +1,7 @@
 const F = require("./lib/F")
 const D = require("./lib/debug")
 const R = require("ramda")
-const {freeSlots, putIntoSlot, isWin} = require("./board")
+const {freeSlots, putIntoSlot, isWin, hash} = require("./board")
 
 const SCORE = {
   WIN: 1,
@@ -75,35 +75,46 @@ const Node = (config, itDepth, board) => slot => {
 const skipPostProcess = () => R.identity
 
 // :: (...) -> [NodeResult] -> [NodeResult]
-const deepening = (evalFn, config, board) => nodeResults => {
-  const shouldDeepen = R.both(
+const deepening = (evalFn, config, cache, board) => nodeResults => {
+  const canDeepen = R.allPass([
     R.none(nr => nr.score > SCORE.DRAW),
     R.any(nr => nr.score === SCORE.UNKNOWN),
-  )(nodeResults)
-  if (!shouldDeepen || config.iterationCount >= config.iterationBudget) {
-    return nodeResults
+  ])
+  for (let w=0; canDeepen(nodeResults) && config.iterationCount <= config.iterationBudget; w++) {
+    const i = w%nodeResults.length
+    if (i === 0) {
+      config.maxIterationDepth = config.maxIterationDepth + 1
+    }
+    const nr = nodeResults[i]
+    if (nr.score === SCORE.UNKNOWN) {
+      nodeResults[i] = evalFn(config, cache, skipPostProcess, 0)(board, [nr.slot])
+    }
   }
-  config.maxIterationDepth = config.maxIterationDepth + 1
-  return R.compose(
-    deepening(evalFn, config, board),
-    R.map(nr => {
-      if (nr.score === SCORE.UNKNOWN && config.iterationCount < config.iterationBudget) {
-        return evalFn(config, skipPostProcess, 0)(board, [nr.slot])
-      }
-      return nr
-    }),
-  )(nodeResults)
+  return nodeResults
 }
 
 // :: Board -> [Number] -> [Number]
 const prioritiseSlots = board => R.sort(F.compareCloseTo(Math.floor(board[0].length * 0.5)))
 
+// :: ... -> NodeResult
+const withCache = (evalFn, cache) => (board, slots) => {
+  const h = hash(board)
+  if (cache.has(h)) {
+    return cache.get(h)
+  }
+  const nodeResult = evalFn(board, slots)
+  if (nodeResult.score !== SCORE.UNKNOWN) {
+    cache.set(h, nodeResult)
+  }
+  return nodeResult
+}
+
 // :: (Config, ([NodeResult] -> [NodeResult]), Number) -> (Board, [Number]) -> NodeResult
-const evaluate = (config, postprocess, itDepth) => (board, nextSlots) => R.compose(
+const evaluate = (config, cache, postprocess, itDepth) => withCache((board, nextSlots) => R.compose(
   findSuccessor,
-  postprocess(evaluate, config, board),
+  postprocess(evaluate, config, cache, board),
   mapWithPruning(node => {
-    const nextFn = R.compose(R.prop("score"), evaluate(config, skipPostProcess, itDepth+1))
+    const nextFn = R.compose(R.prop("score"), evaluate(config, cache, skipPostProcess, itDepth+1))
     return NodeResult(
       node.field.slot,
       score(nextFn, config, node),
@@ -113,7 +124,7 @@ const evaluate = (config, postprocess, itDepth) => (board, nextSlots) => R.compo
   R.map(Node(config, itDepth, board)),
   prioritiseSlots(board),
   F.peek(() => config.iterationCount++),
-)(nextSlots)
+)(nextSlots), cache)
 
 const Config = (userOpts, slots) => ({
   winningLength: userOpts.winningLength,
@@ -141,7 +152,7 @@ const move = (userOpts, board) => {
   const slots = freeSlots(board)
   const config = Config(userOpts, slots)
   const startTs = Date.now()
-  const nodeResult = evaluate(config, deepening, 0)(board, slots)
+  const nodeResult = evaluate(config, new Map(), deepening, 0)(board, slots)
   return Move(nodeResult, config, startTs)
 }
 
