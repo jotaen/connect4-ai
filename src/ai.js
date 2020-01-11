@@ -75,7 +75,7 @@ const Node = (config, itDepth, board) => slot => {
 const skipPostProcess = () => R.identity
 
 // :: (...) -> [NodeResult] -> [NodeResult]
-const deepening = (evalFn, config, cache, board) => nodeResults => {
+const deepening = (evalFn, config, persistentCache, transientCache, board) => nodeResults => {
   const canDeepen = R.allPass([
     R.none(nr => nr.score > SCORE.DRAW),
     R.any(nr => nr.score === SCORE.UNKNOWN),
@@ -87,7 +87,7 @@ const deepening = (evalFn, config, cache, board) => nodeResults => {
     }
     const nr = nodeResults[i]
     if (nr.score === SCORE.UNKNOWN) {
-      nodeResults[i] = evalFn(config, cache, skipPostProcess, 0)(board, [nr.slot])
+      nodeResults[i] = evalFn(config, persistentCache, new Map(), skipPostProcess, 0)(board, [nr.slot])
     }
   }
   return nodeResults
@@ -97,34 +97,38 @@ const deepening = (evalFn, config, cache, board) => nodeResults => {
 const prioritiseSlots = board => R.sort(F.compareCloseTo(Math.floor(board[0].length * 0.5)))
 
 // :: ... -> NodeResult
-const withCache = (evalFn, cache) => (board, slots) => {
+const withCache = (evalFn, persistentCache, transientCache) => (board, slots) => {
   const h = hash(board)
-  if (cache.has(h)) {
-    return cache.get(h)
+  const cached = persistentCache.get(h) || transientCache.get(h)
+  if (cached) {
+    return cached
   }
   const nodeResult = evalFn(board, slots)
   if (nodeResult.score !== SCORE.UNKNOWN) {
-    cache.set(h, nodeResult)
+    persistentCache.set(h, nodeResult)
+  } else {
+    transientCache.set(h, nodeResult)
   }
   return nodeResult
 }
 
 // :: (Config, ([NodeResult] -> [NodeResult]), Number) -> (Board, [Number]) -> NodeResult
-const evaluate = (config, cache, postprocess, itDepth) => withCache((board, nextSlots) => R.compose(
-  findSuccessor,
-  postprocess(evaluate, config, cache, board),
-  mapWithPruning(node => {
-    const nextFn = R.compose(R.prop("score"), evaluate(config, cache, skipPostProcess, itDepth+1))
-    return NodeResult(
-      node.field.slot,
-      score(nextFn, config, node),
-      node.isMax,
-    )
-  }),
-  R.map(Node(config, itDepth, board)),
-  prioritiseSlots(board),
-  F.peek(() => config.iterationCount++),
-)(nextSlots), cache)
+const evaluate = (config, persistentCache, transientCache, postprocess, itDepth) =>
+  withCache((board, nextSlots) => R.compose(
+    findSuccessor,
+    postprocess(evaluate, config, persistentCache, transientCache, board),
+    mapWithPruning(node => {
+      const nextFn = R.compose(R.prop("score"), evaluate(config, persistentCache, transientCache, skipPostProcess, itDepth+1))
+      return NodeResult(
+        node.field.slot,
+        score(nextFn, config, node),
+        node.isMax,
+      )
+    }),
+    R.map(Node(config, itDepth, board)),
+    prioritiseSlots(board),
+    F.peek(() => config.iterationCount++),
+  )(nextSlots), persistentCache, transientCache)
 
 const Config = (userOpts, slots) => ({
   winningLength: userOpts.winningLength,
@@ -152,7 +156,7 @@ const move = (userOpts, board) => {
   const slots = freeSlots(board)
   const config = Config(userOpts, slots)
   const startTs = Date.now()
-  const nodeResult = evaluate(config, new Map(), deepening, 0)(board, slots)
+  const nodeResult = evaluate(config, new Map(), new Map(), deepening, 0)(board, slots)
   return Move(nodeResult, config, startTs)
 }
 
