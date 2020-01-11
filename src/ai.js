@@ -115,16 +115,16 @@ const evaluate = (config, postprocess, itDepth) => (board, nextSlots) => R.compo
   F.peek(() => config.iterationCount++),
 )(nextSlots)
 
-const Config = (config, slots) => ({
-  winningLength: config.winningLength,
-  players: config.players,
-  iterationBudget: config.iterationBudget,
-  maxIterationDepth: Math.floor(Math.log(config.iterationBudget) / Math.log(slots.length)) || 1,
+const Config = (userOpts, slots) => ({
+  winningLength: userOpts.winningLength,
+  players: userOpts.players,
+  iterationBudget: userOpts.iterationBudget,
+  maxIterationDepth: Math.floor(Math.log(userOpts.iterationBudget) / Math.log(slots.length)) || 1,
   iterationCount: 0,
 })
 
 // :: (NodeResult, Config) -> Move
-const Move = (nodeResult, config) => ({
+const Move = (nodeResult, config, startTs) => ({
   slot: nodeResult.slot,
   score: nodeResult.score,
   maxIterationDepth: config.maxIterationDepth,
@@ -133,14 +133,16 @@ const Move = (nodeResult, config) => ({
   isDraw: nodeResult.score === SCORE.DRAW,
   isLost: nodeResult.score < SCORE.DRAW,
   isUnknown: nodeResult.score === SCORE.UNKNOWN,
+  time: Date.now() - startTs,
 })
 
 // :: ({}, Board) -> Move
-const move = (configParams, board) => {
+const move = (userOpts, board) => {
   const slots = freeSlots(board)
-  const config = Config(configParams, slots)
+  const config = Config(userOpts, slots)
+  const startTs = Date.now()
   const nodeResult = evaluate(config, deepening, 0)(board, slots)
-  return Move(nodeResult, config)
+  return Move(nodeResult, config, startTs)
 }
 
 module.exports = {
