@@ -4,15 +4,13 @@ const { board2string } = require("../lib/debug")
 const { Game } = require("./game")
 const { Player } = require("./player")
 
-const SLOT_OFFSET = 1
-
 const cli = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
 })
 
 const askUser = (me, done) => {
-  cli.question("\nChoose slot: ", input => done(parseInt(input)-SLOT_OFFSET))
+  cli.question("\nChoose slot: ", input => done(parseInt(input)-1))
 }
 
 const askAi = (me, done, board, status) => {
@@ -30,7 +28,13 @@ const askAi = (me, done, board, status) => {
 
 const cliPlayer = new Player("X", "You", askUser)
 const aiPlayer = new Player("O", "Computer", askAi)
-const game = new Game([cliPlayer, aiPlayer], 4, 5, 3)
+const game = new Game([cliPlayer, aiPlayer], 6, 7, 4)
+
+const outputOpts = {
+  playerPrepend: {[cliPlayer.id()]: "\x1b[31m", [aiPlayer.id()]: "\x1b[32m"},
+  playerAppend: {[cliPlayer.id()]: "\x1b[0m", [aiPlayer.id()]: "\x1b[0m"},
+  slotOffset: 1,
+}
 
 console.log(`
 ====== ${game.players().map(p => p.name()+" ("+p.id()+")").join(" vs. ")} ======
@@ -40,7 +44,7 @@ Connect ${game.status().winningLength} chips to win.
 
 const repl = () => {
   console.log("")
-  console.log(board2string(SLOT_OFFSET, game.board()))
+  console.log(board2string(outputOpts, game.board()))
 
   const s = game.status()
 
@@ -64,7 +68,7 @@ const repl = () => {
     console.log("Winner: " + winner.name())
     const boardWithHighlight = game.board()
     s.win.forEach(fd => boardWithHighlight[fd.row][fd.slot] = "♦︎")
-    console.log(board2string(SLOT_OFFSET, boardWithHighlight))
+    console.log(board2string(outputOpts, boardWithHighlight))
   } else {
     console.log("Game ends with draw")
   }
