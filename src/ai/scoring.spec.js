@@ -1,6 +1,6 @@
 const assert = require("assert")
-const { score } = require("./scoring")
-const { SCORE } = require("./datastructures")
+const { score, findSuccessor } = require("./scoring")
+const { SCORE, NodeResult } = require("./datastructures")
 const Fd = require("../board").Field
 
 const Node = (board, field, isMax, itDepth) => ({
@@ -76,6 +76,60 @@ describe("Scoring", () => {
       ], Fd(0, 2, 1), false, 5)
       const s2 = score(cfg(), n2)
       assert.strictEqual(s2, SCORE.LOST / 6)
+    })
+  })
+
+  describe("findSuccessor", () => {
+    it("picks the highest scored node for Max", () => {
+      const nr1 = NodeResult(2, SCORE.WIN, true)
+      const nr2 = NodeResult(3, SCORE.DRAW, true)
+      const nr3 = NodeResult(4, SCORE.LOST, true)
+      const res = findSuccessor([nr1, nr2, nr3])
+      assert.deepStrictEqual(res, nr1)
+    })
+
+    it("picks the highest scored node for Min", () => {
+      const nr1 = NodeResult(2, SCORE.WIN, false)
+      const nr2 = NodeResult(3, SCORE.DRAW, false)
+      const nr3 = NodeResult(4, SCORE.LOST, false)
+      const res = findSuccessor([nr1, nr2, nr3])
+      assert.deepStrictEqual(res, nr3)
+    })
+
+    it("favours `DRAW` over `UNKNOWN` for Max", () => {
+      const nr1 = NodeResult(2, SCORE.UNKNOWN, true)
+      const nr2 = NodeResult(3, SCORE.DRAW, true)
+      const nr3 = NodeResult(4, SCORE.UNKNOWN, true)
+      const nr4 = NodeResult(5, SCORE.LOST, true)
+      const res = findSuccessor([nr1, nr2, nr3, nr4])
+      assert.deepStrictEqual(res, nr2)
+    })
+
+    it("favours `DRAW` over `UNKNOWN` for Min", () => {
+      const nr1 = NodeResult(1, SCORE.WIN, false)
+      const nr2 = NodeResult(2, SCORE.UNKNOWN, false)
+      const nr3 = NodeResult(3, SCORE.UNKNOWN, false)
+      const nr4 = NodeResult(4, SCORE.DRAW, false)
+      const res = findSuccessor([nr1, nr2, nr3, nr4])
+      assert.deepStrictEqual(res, nr4)
+    })
+
+    it("picks the first of `UNKNOWN`s for Max", () => {
+      const nr1 = NodeResult(1, SCORE.UNKNOWN, true)
+      const nr2 = NodeResult(2, SCORE.LOST, true)
+      const nr3 = NodeResult(3, SCORE.UNKNOWN, true)
+      const nr4 = NodeResult(4, SCORE.UNKNOWN, true)
+      const res = findSuccessor([nr1, nr2, nr3, nr4])
+      assert.deepStrictEqual(res, nr1)
+    })
+
+    it("picks the first of `UNKNOWN`s for Min", () => {
+      const nr1 = NodeResult(1, SCORE.WIN, false)
+      const nr2 = NodeResult(2, SCORE.WIN, false)
+      const nr3 = NodeResult(3, SCORE.UNKNOWN, false)
+      const nr4 = NodeResult(4, SCORE.UNKNOWN, false)
+      const res = findSuccessor([nr1, nr2, nr3, nr4])
+      assert.deepStrictEqual(res, nr3)
     })
   })
 })

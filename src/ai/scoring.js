@@ -15,19 +15,18 @@ const score = (config, node) => {
   return SCORE.UNKNOWN
 }
 
-const maximise = (a, b) => {
-  if (a.score === SCORE.UNKNOWN && b.score === SCORE.UNKNOWN) {
-
-  }
-  return F.maxBy(R.prop("score"))(a, b)
-}
+const compare = fn => (a, b) => (() => {
+  if (a.score === 0 && b.score === null) return a
+  if (a.score === null && b.score === 0) return b
+  return (fn(a.score, b.score)) ? a : b
+})()
 
 // :: [NodeResult] -> NodeResult
 const findSuccessor = R.reduce((prev, curr) => {
   if (!prev) {
     return curr
   }
-  const decide = curr.isMax ? maximise : F.minBy(R.prop("score"))
+  const decide = compare(curr.isMax ? R.gt : R.lt)
   return decide(curr, prev)
 }, undefined)
 
