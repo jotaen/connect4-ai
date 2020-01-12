@@ -27,7 +27,6 @@ const Node = (config, itDepth, board) => slot => {
   return {
     board: nextState.board,
     field: nextState.field,
-    isIterationLimit: itDepth >= config.maxIterationDepth,
     isMax: isMaxOnTurn(config.players, itDepth),
     depth: itDepth,
   }

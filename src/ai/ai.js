@@ -29,9 +29,11 @@ const evaluate = (config, persistentCache, transientCache, postprocess, itDepth)
     postprocess(evaluate, config, persistentCache, transientCache, board),
     mapWithPruning(node => {
       const nextFn = R.compose(R.prop("score"), evaluate(config, persistentCache, transientCache, skipPostProcess, itDepth+1))
+      const s = score(config, node)
+      const shouldGoDeeper = (s === SCORE.UNKNOWN && itDepth < config.maxIterationDepth)
       return NodeResult(
         node.field.slot,
-        score(nextFn, config, node),
+        shouldGoDeeper ? nextFn(node.board, freeSlots(node.board)) : s,
         node.isMax,
       )
     }),

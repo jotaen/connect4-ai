@@ -4,7 +4,7 @@ const { isWin, freeSlots } = require("../board")
 const { SCORE } = require("./datastructures")
 
 // :: (((Board, [Number]) -> Number), Config, Node) -> Number
-const score = (next, config, node) => {
+const score = (config, node) => {
   if (isWin(config.winningLength, node.board, node.field)) {
     const value = node.isMax ? SCORE.WIN : SCORE.LOST
     return value / (node.depth + 1)
@@ -13,10 +13,7 @@ const score = (next, config, node) => {
   if (nextSlots.length === 0) {
     return SCORE.DRAW
   }
-  if (node.isIterationLimit) {
-    return SCORE.UNKNOWN
-  }
-  return next(node.board, nextSlots)
+  return SCORE.UNKNOWN
 }
 
 // :: [NodeResult] -> NodeResult
