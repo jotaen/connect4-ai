@@ -19,7 +19,7 @@ const askAi = (me, done, board, status) => {
   const config = {
     winningLength: status.winningLength,
     players: status.playerIds.reverse(),
-    iterationBudget: 20000,
+    iterationBudget: 15000,
   }
   const result = ai.move(config, board)
   console.log(result)
