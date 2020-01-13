@@ -7,6 +7,7 @@ const { deepening, skipPostProcess } = require("./deepening")
 const { mapWithPruning } = require("./pruning")
 const { prioritiseSlots } = require("./predicting")
 const { withCache } = require("./caching")
+const { randomise } = require("./randomising")
 const { SCORE, Config, NodeResult, Node } = require("./datastructures")
 
 // :: (NodeResult, Config) -> Move
@@ -44,12 +45,23 @@ const evaluate = (config, persistentCache, transientCache, postprocess, itDepth)
     F.peek(() => config.iterationCount++),
   )(nextSlots), persistentCache, transientCache)
 
+const topLevelProcessing = config => (...args) => R.compose(
+  randomise(config.random),
+  deepening(...args),
+)
+
 // :: ({}, Board) -> Move
 const move = (userOpts, board) => {
   const slots = freeSlots(board)
   const config = Config(userOpts, slots)
   const startTs = Date.now()
-  const nodeResult = evaluate(config, new Map(), new Map(), deepening, 0)(board, slots)
+  const nodeResult = evaluate(
+    config,
+    new Map(),
+    new Map(),
+    topLevelProcessing(config),
+    0
+  )(board, slots)
   return Move(nodeResult, config, startTs)
 }
 

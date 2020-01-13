@@ -1,3 +1,4 @@
+const R = require("ramda")
 const { putIntoSlot } = require("../board")
 
 const SCORE = {
@@ -36,7 +37,8 @@ const Node = (config, itDepth, board) => slot => {
 const Config = (opts, slots) => ({
   winningLength: opts.winningLength,
   players: opts.players,
-  iterationBudget: opts.iterationBudget,
+  iterationBudget: opts.iterationBudget || 1000,
+  random: opts.random || R.identity,
   maxIterationDepth: Math.floor(Math.log(opts.iterationBudget) / Math.log(slots.length)) || 1,
   iterationCount: 0,
 })
