@@ -48,33 +48,31 @@ describe("AI", () => {
   })
 
   it("Returns the next slot with which it can prevent loosing", () => {
-    // Note: the situation on the boards is so that the end result
-    // can theoretically still be draw or win for the AI
+    // Note: iteration budget must be capped so that final score is unknown
     [
-      {config: {winningLength: 3},
-       expectation: {iterationCount: 32, slot: 0, isWin: true},
+      {config: {winningLength: 3, iterationBudget: 20},
+       expectation: {iterationCount: 37, slot: 0, isUnknown: true},
        board: [
-        // other possible outcomes: draw or win
+        [_,_,_],
         [_,_,_],
         [0,_,_],
         [0,_,a],
       ]},
-      {config: {winningLength: 3},
-       expectation: {iterationCount: 10, slot: 1, isWin: true},
+      {config: {winningLength: 3, iterationBudget: 10},
+       expectation: {iterationCount: 11, slot: 1, isUnknown: true},
        board: [
-        // other possible outcomes: draw or win
-        [a,_,_],
-        [a,_,_],
+        [_,_,_],
+        [_,_,_],
+        [a,_,a],
         [0,_,0],
       ]},
-      {config: {winningLength: 3},
-       expectation: {iterationCount: 9, slot: 0, isWin: true},
+      {config: {winningLength: 3, iterationBudget: 20},
+       expectation: {iterationCount: 21, slot: 2, isUnknown: true},
        board: [
-        // other possible outcomes: draw or win
         [_,_,_],
-        [_,_,0],
+        [_,_,_],
         [_,0,a],
-        [_,a,a],
+        [0,a,0],
       ]},
     ].forEach(assertNextMove)
   })
