@@ -28,13 +28,15 @@ const evaluate = (config, persistentCache, transientCache, postprocess, itDepth)
     findSuccessor,
     postprocess(evaluate, config, persistentCache, transientCache, board),
     mapWithPruning(node => {
-      const nextFn = R.compose(R.prop("score"), evaluate(config, persistentCache, transientCache, skipPostProcess, itDepth+1))
+      const nextFn = evaluate(config, persistentCache, transientCache, skipPostProcess, itDepth+1)
       const s = score(config, node)
       const shouldGoDeeper = (s === SCORE.UNKNOWN && itDepth < config.maxIterationDepth)
+      const nr = shouldGoDeeper ? nextFn(node.board, freeSlots(node.board)) : {score: s}
       return NodeResult(
         node.field.slot,
-        shouldGoDeeper ? nextFn(node.board, freeSlots(node.board)) : s,
+        nr.score,
         node.isMax,
+        nr.chance,
       )
     }),
     R.map(Node(config, itDepth, board)),

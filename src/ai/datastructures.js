@@ -14,10 +14,11 @@ const playerOnTurn = (players, itDepth) => players[itDepth%players.length]
 const isMaxOnTurn = (players, itDepth) => itDepth%players.length === 0
 
 // :: (Number, Number, bool) -> NodeResult
-const NodeResult = (slot, score, isMax) => ({
+const NodeResult = (slot, score, isMax, chance) => ({
   slot,
   score,
   isMax,
+  chance,
 })
 
 // :: (Config, Number, Board) -> Number -> Node
