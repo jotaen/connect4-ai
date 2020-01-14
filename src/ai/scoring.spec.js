@@ -147,17 +147,17 @@ describe("Scoring", () => {
       assert.deepStrictEqual(res, nr2)
     })
 
-    it("culmulates possible wins as chance", () => {
+    it("culmulates possible wins as chance (divided by branching factor)", () => {
       const nr1 = NodeResult(1, 0.1, false)
       const nr2 = NodeResult(2, SCORE.UNKNOWN, false)
-      const nr3 = NodeResult(3, 1, false)
-      const nr4 = NodeResult(3, 0.5, false)
+      const nr3 = NodeResult(3, 0.2, false)
+      const nr4 = NodeResult(3, 0.3, false)
       const nr5 = NodeResult(4, SCORE.UNKNOWN, false)
       const res = findSuccessor([nr1, nr2, nr3, nr4, nr5])
-      assert.strictEqual(res.chance, 13)
+      assert.strictEqual(res.chance, 27.22222222222222)
     })
 
-    it("if there is no win, it cuts chance in half", () => {
+    it("takes over the chances (divided by branching factor)", () => {
       const nr1 = NodeResult(1, SCORE.UNKNOWN, true)
       nr1.chance = 2
       const nr2 = NodeResult(2, SCORE.UNKNOWN, true)

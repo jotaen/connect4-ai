@@ -148,7 +148,7 @@ describe("AI", () => {
         [_,a,0],
       ]},
       {config: {winningLength: 3, iterationBudget: 100},
-       expectation: {iterationCount: 104, slot: 1, isUnknown: true, maxIterationDepth: 5},
+       expectation: {iterationCount: 104, slot: 2, isUnknown: true, maxIterationDepth: 5},
        board: [
         [_,_,_],
         [_,_,_],

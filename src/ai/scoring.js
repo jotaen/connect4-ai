@@ -32,12 +32,14 @@ const pickBest = fn => (a, b) => (() => {
 const findSuccessor = nrs => R.compose(
   nr => {
     const chance = R.compose(
+      x => x/nrs.length,
       R.sum,
       R.reject(R.isNil),
       R.map(n => {
-        if (n.score > SCORE.DRAW) return 1/n.score
-        if (n.chance > 0) return n.chance/nrs.length
-        return null
+        if (n.score > 0) {
+          return Math.pow(1/n.score, 2)
+        }
+        return n.chance
       }),
     )(nrs)
     if (chance > 0) {
