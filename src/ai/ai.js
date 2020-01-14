@@ -10,29 +10,39 @@ const { withCache } = require("./caching")
 const { randomise } = require("./randomising")
 const { SCORE, Config, NodeResult, Node, Stats } = require("./datastructures")
 
+const toNodeResult = evalFn => (config, stats, persistentCache, transientCache) => node => {
+  const currScore = score(config, node)
+  const shouldGoDeeper = (currScore === SCORE.UNKNOWN && node.depth < node.maxDepth)
+  if (shouldGoDeeper) {
+    const deeperNR = evalFn(config, stats, persistentCache, transientCache, skipPostProcess, node.maxDepth, node.depth+1)(node.board, freeSlots(node.board))
+    return NodeResult(
+      node.field.slot,
+      deeperNR.score,
+      node.isMax,
+      deeperNR.chance,
+      deeperNR.depth,
+    )
+  }
+  return NodeResult(
+    node.field.slot,
+    currScore,
+    node.isMax,
+    undefined,
+    node.depth,
+  )
+}
+
 // :: (Config, ([NodeResult] -> [NodeResult]), Number) -> (Board, [Number]) -> NodeResult
-const evaluate = (config, stats, persistentCache, transientCache, postprocessFn, maxItDepth, itDepth) =>
+const evaluate = R.curry((config, stats, persistentCache, transientCache, postprocessFn, maxItDepth, itDepth) =>
   withCache((board, nextSlots) => R.compose(
     findSuccessor,
     postprocessFn(evaluate)(config, stats, persistentCache, transientCache, maxItDepth, board),
-    mapWithPruning(node => {
-      const s = score(config, node)
-      const shouldGoDeeper = (s === SCORE.UNKNOWN && node.depth < node.maxDepth)
-      const nr = shouldGoDeeper ?
-        evaluate(config, stats, persistentCache, transientCache, skipPostProcess, node.maxDepth, node.depth+1)(node.board, freeSlots(node.board))
-        : {score: s, depth: node.depth}
-      return NodeResult(
-        node.field.slot,
-        nr.score,
-        node.isMax,
-        nr.chance,
-        nr.depth,
-      )
-    }),
+    mapWithPruning(toNodeResult(evaluate)(config, stats, persistentCache, transientCache)),
     R.map(Node(config, maxItDepth, itDepth, board)),
     prioritiseSlots(board),
     F.peek(() => stats.iterationCount++),
   )(nextSlots), persistentCache, transientCache)
+)
 
 const topLevelProcessing = config => evalFn => (...args) => R.compose(
   randomise(config.random),
