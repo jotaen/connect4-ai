@@ -34,13 +34,16 @@ const Node = (config, itDepth, board) => slot => {
   }
 }
 
-const Config = (opts, slots) => ({
+const Config = (opts) => Object.freeze({
   winningLength: opts.winningLength,
   players: opts.players,
   iterationBudget: opts.iterationBudget || 1000,
   random: opts.random || (() => 1),
-  maxIterationDepth: Math.floor(Math.log(opts.iterationBudget) / Math.log(slots.length)) || 1,
+})
+
+const Stats = () => ({
   iterationCount: 0,
+  maxDepth: 0,
 })
 
 module.exports = {
@@ -48,4 +51,5 @@ module.exports = {
   NodeResult,
   Node,
   Config,
+  Stats,
 }

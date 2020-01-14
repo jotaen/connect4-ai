@@ -1,22 +1,25 @@
 const R = require("ramda")
 const { SCORE } = require("./datastructures")
 
-const skipPostProcess = () => R.identity
+const skipPostProcess = () => () => R.identity
 
 // :: (...) -> [NodeResult] -> [NodeResult]
-const deepening = (evalFn, config, persistentCache, transientCache, board) => nodeResults => {
+const deepening = evalFn => (config, stats, persistentCache, transientCache, maxItDepth, board) => nodeResults => {
   const canDeepen = R.allPass([
     R.none(nr => nr.score > SCORE.DRAW),
     R.any(nr => nr.score === SCORE.UNKNOWN),
   ])
-  for (let w=0; canDeepen(nodeResults) && config.iterationCount <= config.iterationBudget; w++) {
+  let currentItDepth = maxItDepth
+  stats.maxDepth = currentItDepth
+  for (let w=0; canDeepen(nodeResults) && stats.iterationCount <= config.iterationBudget; w++) {
     const i = w%nodeResults.length
     if (i === 0) {
-      config.maxIterationDepth = config.maxIterationDepth + 1
+      currentItDepth = currentItDepth + 1
+      stats.maxDepth = currentItDepth
     }
     const nr = nodeResults[i]
     if (nr.score === SCORE.UNKNOWN) {
-      nodeResults[i] = evalFn(config, persistentCache, new Map(), skipPostProcess, 0)(board, [nr.slot])
+      nodeResults[i] = evalFn(config, stats, persistentCache, new Map(), skipPostProcess, currentItDepth, 0)(board, [nr.slot])
     }
   }
   return nodeResults

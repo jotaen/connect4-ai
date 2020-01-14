@@ -8,30 +8,17 @@ const { mapWithPruning } = require("./pruning")
 const { prioritiseSlots } = require("./predicting")
 const { withCache } = require("./caching")
 const { randomise } = require("./randomising")
-const { SCORE, Config, NodeResult, Node } = require("./datastructures")
-
-// :: (NodeResult, Config) -> Move
-const Move = (nodeResult, config, startTs) => ({
-  slot: nodeResult.slot,
-  score: nodeResult.score,
-  maxIterationDepth: config.maxIterationDepth,
-  iterationCount: config.iterationCount,
-  isWin: nodeResult.score > SCORE.DRAW,
-  isDraw: nodeResult.score === SCORE.DRAW,
-  isLost: nodeResult.score < SCORE.DRAW,
-  isUnknown: nodeResult.score === SCORE.UNKNOWN,
-  time: Date.now() - startTs,
-})
+const { SCORE, Config, NodeResult, Node, Stats } = require("./datastructures")
 
 // :: (Config, ([NodeResult] -> [NodeResult]), Number) -> (Board, [Number]) -> NodeResult
-const evaluate = (config, persistentCache, transientCache, postprocess, itDepth) =>
+const evaluate = (config, stats, persistentCache, transientCache, postprocessFn, maxItDepth, itDepth) =>
   withCache((board, nextSlots) => R.compose(
     findSuccessor,
-    postprocess(evaluate, config, persistentCache, transientCache, board),
+    postprocessFn(evaluate)(config, stats, persistentCache, transientCache, maxItDepth, board),
     mapWithPruning(node => {
-      const nextFn = evaluate(config, persistentCache, transientCache, skipPostProcess, itDepth+1)
+      const nextFn = evaluate(config, stats, persistentCache, transientCache, skipPostProcess, maxItDepth, itDepth+1)
       const s = score(config, node)
-      const shouldGoDeeper = (s === SCORE.UNKNOWN && itDepth < config.maxIterationDepth)
+      const shouldGoDeeper = (s === SCORE.UNKNOWN && itDepth < maxItDepth)
       const nr = shouldGoDeeper ? nextFn(node.board, freeSlots(node.board)) : {score: s}
       return NodeResult(
         node.field.slot,
@@ -42,27 +29,41 @@ const evaluate = (config, persistentCache, transientCache, postprocess, itDepth)
     }),
     R.map(Node(config, itDepth, board)),
     prioritiseSlots(board),
-    F.peek(() => config.iterationCount++),
+    F.peek(() => stats.iterationCount++),
   )(nextSlots), persistentCache, transientCache)
 
-const topLevelProcessing = config => (...args) => R.compose(
+const topLevelProcessing = config => evalFn => (...args) => R.compose(
   randomise(config.random),
-  deepening(...args),
+  deepening(evalFn)(...args),
 )
 
-// :: ({}, Board) -> Move
+// :: ({...}, Board) -> {...}
 const move = (userOpts, board) => {
   const slots = freeSlots(board)
   const config = Config(userOpts, slots)
+  const stats = Stats()
   const startTs = Date.now()
   const nodeResult = evaluate(
     config,
+    stats,
     new Map(),
     new Map(),
     topLevelProcessing(config),
+    Math.floor(Math.log(config.iterationBudget) / Math.log(slots.length)) || 1,
     0
   )(board, slots)
-  return Move(nodeResult, config, startTs)
+  const endTs = Date.now()
+  return {
+    slot: nodeResult.slot,
+    score: nodeResult.score,
+    isWin: nodeResult.score > SCORE.DRAW,
+    isDraw: nodeResult.score === SCORE.DRAW,
+    isLost: nodeResult.score < SCORE.DRAW,
+    isUnknown: nodeResult.score === SCORE.UNKNOWN,
+    maxIterationDepth: stats.maxDepth,
+    iterationCount: stats.iterationCount,
+    runtimeMs: endTs - startTs
+  }
 }
 
 module.exports = {
