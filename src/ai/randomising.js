@@ -1,14 +1,17 @@
-const R = require("ramda")
+const F = require("../lib/F")
 
-const randomise = next => R.map(
-  nr => {
-    if (!nr.chance) {
-      return nr
-    }
-    // TODO
-    return nr
+const DISTRIBUTION_FACTOR = 0.5
+const CHANCE_THRESHOLD = 1
+
+const randomise = next => F.mapIndexed((nr, i) => {
+  if (nr.chance < CHANCE_THRESHOLD) {
+    nr.chance = undefined
   }
-)
+  if (nr.chance === undefined) {
+    nr.chance = Math.pow(next(), i+DISTRIBUTION_FACTOR)
+  }
+  return nr
+})
 
 module.exports = {
   randomise,
