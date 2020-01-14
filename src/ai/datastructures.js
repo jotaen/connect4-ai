@@ -38,7 +38,7 @@ const Config = (opts, slots) => ({
   winningLength: opts.winningLength,
   players: opts.players,
   iterationBudget: opts.iterationBudget || 1000,
-  random: opts.random || R.identity,
+  random: opts.random || (() => 1),
   maxIterationDepth: Math.floor(Math.log(opts.iterationBudget) / Math.log(slots.length)) || 1,
   iterationCount: 0,
 })

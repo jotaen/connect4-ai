@@ -20,6 +20,7 @@ const askAi = (me, done, board, status) => {
     winningLength: status.winningLength,
     players: status.playerIds.reverse(),
     iterationBudget: 15000,
+    random: () => Math.random(),
   }
   const result = ai.move(config, board)
   console.log(result)
