@@ -11,7 +11,7 @@ const assertNextMove = t => {
     iterationBudget: Number.MAX_SAFE_INTEGER,
   }
   const applicableConfig = { ...defaultConfig, ...t.config }
-  const res = move(applicableConfig, t.board)
+  const res = move(applicableConfig, t.board, new Map())
   Object.keys(t.expectation).forEach(k => {
     assert.strictEqual(res[k], t.expectation[k], k)
   })
