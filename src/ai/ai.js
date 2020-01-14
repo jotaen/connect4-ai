@@ -16,18 +16,20 @@ const evaluate = (config, stats, persistentCache, transientCache, postprocessFn,
     findSuccessor,
     postprocessFn(evaluate)(config, stats, persistentCache, transientCache, maxItDepth, board),
     mapWithPruning(node => {
-      const nextFn = evaluate(config, stats, persistentCache, transientCache, skipPostProcess, maxItDepth, itDepth+1)
       const s = score(config, node)
-      const shouldGoDeeper = (s === SCORE.UNKNOWN && itDepth < maxItDepth)
-      const nr = shouldGoDeeper ? nextFn(node.board, freeSlots(node.board)) : {score: s}
+      const shouldGoDeeper = (s === SCORE.UNKNOWN && node.depth < node.maxDepth)
+      const nr = shouldGoDeeper ?
+        evaluate(config, stats, persistentCache, transientCache, skipPostProcess, node.maxDepth, node.depth+1)(node.board, freeSlots(node.board))
+        : {score: s, depth: node.depth}
       return NodeResult(
         node.field.slot,
         nr.score,
         node.isMax,
         nr.chance,
+        nr.depth,
       )
     }),
-    R.map(Node(config, itDepth, board)),
+    R.map(Node(config, maxItDepth, itDepth, board)),
     prioritiseSlots(board),
     F.peek(() => stats.iterationCount++),
   )(nextSlots), persistentCache, transientCache)

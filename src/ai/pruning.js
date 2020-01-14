@@ -4,15 +4,16 @@ const { SCORE, NodeResult } = require("./datastructures")
 // :: (Node -> NodeResult) -> [Node] -> [NodeResult]
 const mapWithPruning = evaluateFn => R.compose(
   R.tail,
-  R.scan((prev, curr) => {
-    const shouldCutOff = (prev && (
-      (curr.isMax && prev.score > SCORE.DRAW)
-      || (!curr.isMax && prev.score === SCORE.LOST) // only prune when loss is “close”
-      ))
+  R.scan((prevNodeResult, currNode) => {
+    const shouldCutOff = (prevNodeResult && (currNode.isMax && prevNodeResult.score > SCORE.DRAW))
     if (shouldCutOff) {
-      return NodeResult(curr.field.slot, SCORE.UNKNOWN, curr.isMax)
+      return NodeResult(currNode.field.slot, SCORE.UNKNOWN, currNode.isMax, undefined, currNode.depth)
     }
-    return evaluateFn(curr)
+    const shouldLimitDepth = (prevNodeResult && (!currNode.isMax && prevNodeResult.score < SCORE.DRAW))
+    if (shouldLimitDepth) {
+      currNode.maxDepth = prevNodeResult.depth - 1
+    }
+    return evaluateFn(currNode)
 }, undefined))
 
 module.exports = {

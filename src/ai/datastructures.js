@@ -15,15 +15,16 @@ const playerOnTurn = (players, itDepth) => players[itDepth%players.length]
 const isMaxOnTurn = (players, itDepth) => itDepth%players.length === 0
 
 // :: (Number, Number, bool) -> NodeResult
-const NodeResult = (slot, score, isMax, chance) => ({
+const NodeResult = (slot, score, isMax, chance, depth) => ({
   slot,
   score,
   isMax,
   chance,
+  depth,
 })
 
 // :: (Config, Number, Board) -> Number -> Node
-const Node = (config, itDepth, board) => slot => {
+const Node = (config, maxDepth, itDepth, board) => slot => {
   const player = playerOnTurn(config.players, itDepth)
   const nextState = putIntoSlot(player, slot, board)
   return {
@@ -31,6 +32,7 @@ const Node = (config, itDepth, board) => slot => {
     field: nextState.field,
     isMax: isMaxOnTurn(config.players, itDepth),
     depth: itDepth,
+    maxDepth: maxDepth,
   }
 }
 
