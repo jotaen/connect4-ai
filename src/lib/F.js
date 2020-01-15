@@ -36,6 +36,18 @@ const transposeDiagonal = xxs => R.compose(
 // :: Number -> ((Number, Number) -> Number) -> [Number]
 const compareCloseTo = pivot => (a, b) => (Math.abs(a - pivot) - Math.abs(b - pivot) || b - a)
 
+const mapIterateUntil = (predicate, fn) => xs => {
+  let loopCount = 0
+  for (let i=0; predicate(xs); i++) {
+    const index = i%xs.length
+    if (index === 0) {
+      loopCount++
+    }
+    xs[index] = fn(xs[index], loopCount)
+  }
+  return xs
+}
+
 module.exports = {
   mapIndexed,
   transposeDiagonal,
@@ -44,4 +56,5 @@ module.exports = {
   maxBy,
   minBy,
   compareCloseTo,
+  mapIterateUntil,
 }

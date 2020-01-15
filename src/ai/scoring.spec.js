@@ -13,7 +13,7 @@ const Node = (board, field, isMax, itDepth) => ({
 const _ = null
 const a = 1
 
-const cfg = () => ({
+const config = Object.freeze({
   winningLength: 3,
   players: [a, 0]
 })
@@ -26,7 +26,7 @@ describe("Scoring", () => {
         [_,a,0],
         [a,0,a],
       ], Fd(2, 0, a), true, 0)
-      const s = score(cfg(), n)
+      const s = score(config, n)
       assert.strictEqual(s, SCORE.WIN)
     })
 
@@ -36,7 +36,7 @@ describe("Scoring", () => {
         [_,a,0],
         [_,0,0],
       ], Fd(0, 2, 1), false, 0)
-      const s = score(cfg(), n)
+      const s = score(config, n)
       assert.strictEqual(s, SCORE.LOST)
     })
 
@@ -46,7 +46,7 @@ describe("Scoring", () => {
         [0,a,0],
         [a,0,a],
       ], Fd(0, 1, 1), true, 0)
-      const s = score(cfg(), n)
+      const s = score(config, n)
       assert.strictEqual(s, SCORE.DRAW)
     })
 
@@ -56,7 +56,7 @@ describe("Scoring", () => {
         [0,a,0],
         [a,0,a],
       ], Fd(0, 1, 1), true, 0)
-      const s = score(cfg(), n)
+      const s = score(config, n)
       assert.strictEqual(s, SCORE.UNKNOWN)
     })
 
@@ -66,7 +66,7 @@ describe("Scoring", () => {
         [_,a,0],
         [a,0,a],
       ], Fd(2, 0, a), true, 2)
-      const s1 = score(cfg(), n1)
+      const s1 = score(config, n1)
       assert.strictEqual(s1, SCORE.WIN / 3)
 
       const n2 = Node([
@@ -74,7 +74,7 @@ describe("Scoring", () => {
         [_,a,0],
         [_,0,0],
       ], Fd(0, 2, 1), false, 5)
-      const s2 = score(cfg(), n2)
+      const s2 = score(config, n2)
       assert.strictEqual(s2, SCORE.LOST / 6)
     })
   })

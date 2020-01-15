@@ -84,4 +84,23 @@ describe("F (functional programming utility)", () => {
       assert.strictEqual(isTuple([1, 2, 3]), false)
     })
   })
+
+  describe("mapIterateUntil", () => {
+    it("Iterates over array as long as predicate is truthy", () => {
+      const result = F.mapIterateUntil(
+        (xs) => R.sum(xs) < 50,
+        x => x + 1
+      )([1, 2, 3, 4, 5])
+      assert.deepStrictEqual(result, [8, 9, 10, 11, 12])
+    })
+
+    it("It checks the predicate on every single iteration", () => {
+      let i = 0
+      const result = F.mapIterateUntil(
+        () => i++ < 3,
+        x => x + 1
+      )([10, 10, 10, 10, 10])
+      assert.deepStrictEqual(result, [11, 11, 11, 10, 10])
+    })
+  })
 })
