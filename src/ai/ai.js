@@ -50,7 +50,7 @@ const topLevelProcessing = config => evalFn => (...args) => R.compose(
 )
 
 // :: ({...}, Board) -> {...}
-const move = (userOpts, board, persistentCache) => {
+const move = (userOpts, board) => {
   const slots = freeSlots(board)
   const config = Config(userOpts, slots)
   const stats = Stats()
@@ -58,7 +58,7 @@ const move = (userOpts, board, persistentCache) => {
   const nodeResult = evaluate(
     config,
     stats,
-    persistentCache,
+    new Map(),
     new Map(),
     topLevelProcessing(config),
     Math.floor(Math.log(config.iterationBudget) / Math.log(slots.length)) || 1,

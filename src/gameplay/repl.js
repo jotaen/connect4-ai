@@ -13,7 +13,6 @@ const askUser = (me, done) => {
   cli.question("\nChoose slot: ", input => done(parseInt(input)-1))
 }
 
-const persistentCache = new Map()
 const askAi = (me, done, board, status) => {
   console.log("")
   console.log(me.name() + " is thinking...")
@@ -23,7 +22,7 @@ const askAi = (me, done, board, status) => {
     iterationBudget: 15000,
     random: () => Math.random(),
   }
-  const result = ai.move(config, board, persistentCache)
+  const result = ai.move(config, board)
   console.log(result)
   done(result.slot)
 }
