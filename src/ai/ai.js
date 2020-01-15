@@ -68,10 +68,7 @@ const move = (userOpts, board) => {
   return {
     slot: nodeResult.slot,
     score: nodeResult.score,
-    isWin: nodeResult.score > SCORE.DRAW,
-    isDraw: nodeResult.score === SCORE.DRAW,
-    isLost: nodeResult.score < SCORE.DRAW,
-    isUnknown: nodeResult.score === SCORE.UNKNOWN,
+    depth: nodeResult.depth,
     maxIterationDepth: stats.maxDepth,
     iterationCount: stats.iterationCount,
     runtimeMs: endTs - startTs

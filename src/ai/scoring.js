@@ -6,8 +6,7 @@ const { SCORE } = require("./datastructures")
 // :: (((Board, [Number]) -> Number), Config, Node) -> Number
 const score = (config, node) => {
   if (isWin(config.winningLength, node.board, node.field)) {
-    const value = node.isMax ? SCORE.WIN : SCORE.LOST
-    return value / (node.depth + 1)
+    return node.isMax ? SCORE.WIN : SCORE.LOST
   }
   if (!hasFreeSlots(node.board)) {
     return SCORE.DRAW
@@ -15,7 +14,10 @@ const score = (config, node) => {
   return SCORE.UNKNOWN
 }
 
-const pickBest = fn => (a, b) => (() => {
+// NodeResult -> Number
+const relScore = nr => nr.score === SCORE.UNKNOWN ? nr.score : nr.score / (nr.depth + 1)
+
+const pickBest = compareFn => (a, b) => (() => {
   if (a.score === SCORE.UNKNOWN && b.score === SCORE.UNKNOWN) {
     return a.chance > b.chance ? a : b
   }
@@ -25,7 +27,7 @@ const pickBest = fn => (a, b) => (() => {
   if (a.score === SCORE.UNKNOWN && b.score === SCORE.DRAW) {
     return b
   }
-  return (fn(a.score, b.score)) ? a : b
+  return (compareFn(relScore(a), relScore(b))) ? a : b
 })()
 
 // :: [NodeResult] -> NodeResult
@@ -36,8 +38,8 @@ const findSuccessor = nrs => R.compose(
       R.sum,
       R.reject(R.isNil),
       R.map(n => {
-        if (n.score > 0) {
-          return Math.pow(1/n.score, 2)
+        if (n.score === SCORE.WIN) {
+          return Math.pow(1/relScore(n), 2)
         }
         return n.chance
       }),

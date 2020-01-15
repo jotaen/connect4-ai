@@ -5,7 +5,7 @@ const { SCORE } = require("./datastructures")
 const skipPostProcess = () => () => R.identity
 
 const canDeepen = R.both(
-  R.none(nr => nr.score > SCORE.DRAW),
+  R.none(nr => nr.score === SCORE.WIN),
   R.any(nr => nr.score === SCORE.UNKNOWN),
 )
 

@@ -5,11 +5,11 @@ const { SCORE, NodeResult } = require("./datastructures")
 const mapWithPruning = evaluateFn => R.compose(
   R.tail,
   R.scan((prevNodeResult, currNode) => {
-    const shouldCutOff = (prevNodeResult && (currNode.isMax && prevNodeResult.score > SCORE.DRAW))
+    const shouldCutOff = (prevNodeResult && (currNode.isMax && prevNodeResult.score === SCORE.WIN))
     if (shouldCutOff) {
       return NodeResult(currNode.field.slot, SCORE.UNKNOWN, currNode.isMax, undefined, currNode.depth)
     }
-    const shouldLimitDepth = (prevNodeResult && (!currNode.isMax && prevNodeResult.score < SCORE.DRAW))
+    const shouldLimitDepth = (prevNodeResult && (!currNode.isMax && prevNodeResult.score === SCORE.LOST))
     if (shouldLimitDepth) {
       currNode.maxDepth = prevNodeResult.depth - 1
     }
