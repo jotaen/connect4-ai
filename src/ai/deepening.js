@@ -1,29 +1,42 @@
 const R = require("ramda")
+const F = require("../lib/F")
 const { SCORE } = require("./datastructures")
 
 const skipPostProcess = () => () => R.identity
 
-// :: (...) -> [NodeResult] -> [NodeResult]
-const deepening = evalFn => (config, stats, persistentCache, transientCache, maxItDepth, board) => nodeResults => {
-  const canDeepen = R.allPass([
-    R.none(nr => nr.score > SCORE.DRAW),
-    R.any(nr => nr.score === SCORE.UNKNOWN),
-  ])
-  let currentItDepth = maxItDepth
-  stats.maxDepth = currentItDepth
-  for (let w=0; canDeepen(nodeResults) && stats.iterationCount <= config.iterationBudget; w++) {
-    const i = w%nodeResults.length
-    if (i === 0) {
-      currentItDepth = currentItDepth + 1
-      stats.maxDepth = currentItDepth
+const mapIterateUntil = (predicate, fn) => xs => {
+  let loopCount = 0
+  for (let i=0; predicate(xs); i++) {
+    const index = i%xs.length
+    if (index === 0) {
+      loopCount++
     }
-    const nr = nodeResults[i]
-    if (nr.score === SCORE.UNKNOWN) {
-      nodeResults[i] = evalFn(config, stats, persistentCache, new Map(), skipPostProcess, currentItDepth, 0)(board, [nr.slot])
-    }
+    xs[index] = fn(xs[index], loopCount)
   }
-  return nodeResults
+  return xs
 }
+
+const canDeepen = R.allPass([
+  R.none(nr => nr.score > SCORE.DRAW),
+  R.any(nr => nr.score === SCORE.UNKNOWN),
+])
+
+// :: (...) -> [NodeResult] -> [NodeResult]
+const deepening = evalFn =>
+  (config, stats, persistentCache, transientCache, maxItDepth, board) => R.compose(
+    mapIterateUntil(
+      nrs => canDeepen(nrs) && stats.iterationCount <= config.iterationBudget,
+      (nr, loopCount) => {
+        if (nr.score === SCORE.UNKNOWN) {
+          const nextDepth = maxItDepth + loopCount
+          stats.maxDepth = nextDepth
+          return evalFn(config, stats, persistentCache, new Map(), skipPostProcess, nextDepth, 0)(board, [nr.slot])
+        }
+        return nr
+      }
+    ),
+    F.peek(() => stats.maxDepth = maxItDepth),
+)
 
 module.exports = {
   deepening,
