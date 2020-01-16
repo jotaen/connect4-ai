@@ -18,26 +18,32 @@ function Container() {
   )
 }
 
-function Disc({ colour }) {
+function Disc({ colour, isWin }) {
   return (
     <svg viewBox="0 0 100 100" className="disc">
       <circle cx="50" cy="50" r="50" fill={colour} />
+      {isWin && <circle cx="50" cy="50" r="10" fill="black" />}
     </svg>
   )
 }
 
-module.exports = function Board({ board, colours, onDrop }) {
+const isInWin = (win, row, slot) => !!win && win.findIndex(fd => fd.row===row && fd.slot===slot) !== -1
+
+module.exports = function Board({ board, colours, onDrop, win }) {
   const interactiveStyle = {cursor: "pointer"}
   return <div className="board" style={onDrop ? interactiveStyle : null}>
-    {board.map((r, i) => r.map((x, slot) => (
+    {board.map((xs, row) => xs.map((x, slot) => (
       <div
-        key={`${i}-${slot}`}
+        key={`${row}-${slot}`}
         className="cell"
         style={{borderColor: gridColour}}
         onClick={onDrop ? () => onDrop(slot) : null}
       >
         <Container />
-        { x !== null && <Disc colour={colours[x]} /> }
+        { x !== null && <Disc
+          colour={colours[x]}
+          isWin={isInWin(win, row, slot)}
+        /> }
       </div>
     )))}
   </div>
