@@ -1,3 +1,3 @@
 #!/bin/sh
 
-node ./src/ui/repl.js
+node ./src/ui/repl/index.js

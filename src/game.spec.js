@@ -1,12 +1,11 @@
 const assert = require("assert")
-const { Game } = require("./game")
-const { Player } = require("./player")
+const { Game, Player } = require("./game")
 const Fd = require("./board").Field
 
 const X = null
 
 const defaultGame = (args = {}) => {
-  const players = args.players || [new Player(1), new Player(2)]
+  const players = args.players || [Player(1, "One"), Player(2, "Two")]
   const rows = args.rows || 6
   const slots = args.slots || 7
   const winningLength = args.winningLength || 4
@@ -17,7 +16,7 @@ describe("Game", () => {
   describe("initialisation", () => {
     it("has players", () => {
       const g = defaultGame()
-      assert.deepStrictEqual(g.players().map(p => p.id()), [1, 2])
+      assert.deepStrictEqual(g.players().map(p => p.id), [1, 2])
     })
 
     it("has an empty board", () => {
@@ -81,16 +80,16 @@ describe("Game", () => {
       let nextPlayer
 
       nextPlayer = g.nextPlayer()
-      assert.strictEqual(nextPlayer.id(), 1)
+      assert.strictEqual(nextPlayer.id, 1)
       g.tryPut(nextPlayer, 4)
       nextPlayer = g.nextPlayer()
-      assert.strictEqual(nextPlayer.id(), 2)
+      assert.strictEqual(nextPlayer.id, 2)
       g.tryPut(nextPlayer, 4)
       nextPlayer = g.nextPlayer()
-      assert.strictEqual(nextPlayer.id(), 1)
+      assert.strictEqual(nextPlayer.id, 1)
       g.tryPut(nextPlayer, 3)
       nextPlayer = g.nextPlayer()
-      assert.strictEqual(nextPlayer.id(), 2)
+      assert.strictEqual(nextPlayer.id, 2)
     })
 
     it("fails if player is not next", () => {
@@ -117,7 +116,7 @@ describe("Game", () => {
     it("fails player is not part of game", () => {
       const g = defaultGame()
 
-      const evil = new Player(5, "Evil", () => 2)
+      const evil = Player(5, "Evil")
       assert.throws(() => g.tryPut(evil, 4), e => e === "NOT_NEXT")
     })
 
@@ -172,75 +171,6 @@ describe("Game", () => {
       g.tryPut(g.nextPlayer(), 0)
       g.tryPut(g.nextPlayer(), 0)
       assert.throws(() => g.tryPut(g.nextPlayer(), 0))
-    })
-  })
-
-  describe("next", () => {
-    it("passes on game status to the callback", testDone => {
-      const p1 = new Player(1, "Bill", (me, done, board, status) => {
-        assert.strictEqual(status.winningLength, 4)
-        assert.deepStrictEqual(status.playerIds, [1])
-        done(2)
-      })
-      const g = defaultGame({ players: [p1] })
-      g.next()
-        .then(testDone)
-        .catch(console.log)
-    })
-
-    it("always invokes the player on turn", testDone => {
-      let spy1 = 0
-      let spy2 = 0
-      const p1 = new Player(1, "Bill", (me, done, board, status) => {
-        spy1++
-        done(status.freeSlots[1])
-      })
-      const p2 = new Player(2, "Carla", (me, done, board, status) => {
-        spy2++
-        done(status.freeSlots[4])
-      })
-      const g = defaultGame({ players: [p1, p2] })
-
-      g.next().then(() => {
-        assert.strictEqual(spy1, 1)
-        assert.strictEqual(spy2, 0)
-        assert.deepStrictEqual(g.board(), [
-          [X,X,X,X,X,X,X],
-          [X,X,X,X,X,X,X],
-          [X,X,X,X,X,X,X],
-          [X,X,X,X,X,X,X],
-          [X,X,X,X,X,X,X],
-          [X,1,X,X,X,X,X],
-        ])
-      })
-      .then(() => g.next())
-      .then(() => {
-        assert.strictEqual(spy1, 1)
-        assert.strictEqual(spy2, 1)
-        assert.deepStrictEqual(g.board(), [
-          [X,X,X,X,X,X,X],
-          [X,X,X,X,X,X,X],
-          [X,X,X,X,X,X,X],
-          [X,X,X,X,X,X,X],
-          [X,X,X,X,X,X,X],
-          [X,1,X,X,2,X,X],
-        ])
-      })
-      .then(() => g.next())
-      .then(() => {
-        assert.strictEqual(spy1, 2)
-        assert.strictEqual(spy2, 1)
-        assert.deepStrictEqual(g.board(), [
-          [X,X,X,X,X,X,X],
-          [X,X,X,X,X,X,X],
-          [X,X,X,X,X,X,X],
-          [X,X,X,X,X,X,X],
-          [X,1,X,X,X,X,X],
-          [X,1,X,X,2,X,X],
-        ])
-      })
-      .then(testDone)
-      .catch(console.log)
     })
   })
 })

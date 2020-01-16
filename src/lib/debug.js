@@ -7,8 +7,7 @@ const _print = F.peek(console.log)
 // [[any]] -> String
 const board2string = (options, board) => {
   const opts = Object.assign({
-    playerPrepend: {},
-    playerAppend: {},
+    playerSymbols: {},
     slotOffset: 0,
   }, options)
   return R.compose(
@@ -18,7 +17,7 @@ const board2string = (options, board) => {
     R.append(" —" + R.repeat("—", board[0].length).join("+") + "— "),
     R.map(r => "| " + r + " |"),
     R.map(R.join(" ")),
-    R.map(R.map(x => (opts.playerPrepend[x]||"") + x + (opts.playerAppend[x]||""))),
+    R.map(R.map(x => opts.playerSymbols[x] || x )),
     R.map(R.map(x => x === null ? " " : x)),
   )(board)
 }
