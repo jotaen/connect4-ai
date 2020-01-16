@@ -1,0 +1,25 @@
+.app {
+  margin: 0 auto;
+  max-width: 400px;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.cell {
+  position: relative;
+  border-width: 3px;
+  border-style: solid;
+}
+
+.cell svg {
+  display: block;
+}
+
+.disc {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
