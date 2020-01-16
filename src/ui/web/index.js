@@ -7,10 +7,6 @@ const config = Object.freeze({
   workerUrl: "./worker.js",
 })
 
-const myWorker = new Worker(config.workerUrl);
-myWorker.postMessage("Hello")
-myWorker.onmessage = function(e) {
-  console.log(e.data)
-}
+const worker = new Worker(config.workerUrl);
 
-ReactDOM.render(<App/>, config.appContainer)
+ReactDOM.render(<App worker={worker} />, config.appContainer)

@@ -5,7 +5,7 @@ const gridColour = "#294075"
 function Container() {
   return (
     <svg viewBox="0 0 100 100">
-      <path fill-rule="evenodd" fill={gridColour}
+      <path fillRule="evenodd" fill={gridColour}
         d="
         M -1 -1 H 102 V 102 H -1 L -1 -1
         M 50, 50
@@ -18,20 +18,26 @@ function Container() {
   )
 }
 
-function Disc() {
+function Disc({ colour }) {
   return (
     <svg viewBox="0 0 100 100" className="disc">
-      <circle cx="50" cy="50" r="50" fill="red" />
+      <circle cx="50" cy="50" r="50" fill={colour} />
     </svg>
   )
 }
 
-module.exports = function Board({ board }) {
-  return <div className="board">
-    {board.map(r => r.map(f => (
-      <div className="cell" style={{borderColor: gridColour}}>
+module.exports = function Board({ board, colours, onDrop }) {
+  const interactiveStyle = {cursor: "pointer"}
+  return <div className="board" style={onDrop ? interactiveStyle : null}>
+    {board.map((r, i) => r.map((x, slot) => (
+      <div
+        key={`${i}-${slot}`}
+        className="cell"
+        style={{borderColor: gridColour}}
+        onClick={onDrop ? () => onDrop(slot) : null}
+      >
         <Container />
-        { f && <Disc /> }
+        { x !== null && <Disc colour={colours[x]} /> }
       </div>
     )))}
   </div>
