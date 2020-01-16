@@ -1,3 +1,3 @@
 #!/bin/sh
 
-node ./src/gameplay/repl.js
+node ./src/ui/repl.js

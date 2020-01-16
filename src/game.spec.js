@@ -1,7 +1,7 @@
 const assert = require("assert")
 const { Game } = require("./game")
 const { Player } = require("./player")
-const Fd = require("../board").Field
+const Fd = require("./board").Field
 
 const X = null
 

@@ -1,8 +1,8 @@
 const readline = require("readline")
 const ai = require("../ai/ai")
 const { board2string } = require("../lib/debug")
-const { Game } = require("./game")
-const { Player } = require("./player")
+const { Game } = require("../game")
+const { Player } = require("../player")
 
 const cli = readline.createInterface({
   input: process.stdin,
