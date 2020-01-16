@@ -9,6 +9,7 @@ const ai = Player(1, "Computer", "#dfbc34")
 const game2state = game => ({
   board: game.board(),
   isUserNext: game.nextPlayer() === user,
+  isOngoing: game.status().isOngoing,
 })
 
 module.exports = class App extends React.Component {
@@ -37,11 +38,12 @@ module.exports = class App extends React.Component {
   }
 
   render() {
+    const canDrop = this.state.isUserNext && this.state.isOngoing
     return <div className="app">
       <Board
         board={this.state.board}
         colours={{[user.id]: user.symbol, [ai.id]: ai.symbol}}
-        onDrop={this.state.isUserNext ? this.onUserTurn : null}
+        onDrop={canDrop ? this.onUserTurn : null}
       />
       <StatusBar user={user} opponent={ai} isUserNext={this.state.isUserNext} />
     </div>

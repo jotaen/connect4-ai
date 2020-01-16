@@ -131,6 +131,18 @@ describe("Game", () => {
       assert.throws(() => g.tryPut(g.players()[0], NaN), e => e === "INVALID_SLOT")
     })
 
+    it("fails if game is over", () => {
+      const g = defaultGame()
+      g.tryPut(g.players()[0], 3)
+      g.tryPut(g.players()[1], 4)
+      g.tryPut(g.players()[0], 3)
+      g.tryPut(g.players()[1], 4)
+      g.tryPut(g.players()[0], 3)
+      g.tryPut(g.players()[1], 4)
+      g.tryPut(g.players()[0], 3)
+      assert.throws(() => g.tryPut(g.players()[1], 4), e => e === "GAME_COMPLETED")
+    })
+
     it("is possible to put “chips” into slots", () => {
       const g = defaultGame()
       g.tryPut(g.nextPlayer(), 0)
