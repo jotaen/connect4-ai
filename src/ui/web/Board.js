@@ -23,9 +23,8 @@ function Tile() {
 
 function Disc({ color, isWin }) {
   return (
-    <svg viewBox="0 0 100 100" className="disc">
+    <svg viewBox="0 0 100 100" className={`disc ${isWin ? "disc-win" : ""}`}>
       <circle cx="50" cy="50" r={discRadius} fill={color} />
-      {isWin && <circle cx="50" cy="50" r="10" fill="black" />}
     </svg>
   )
 }

@@ -45,6 +45,13 @@ html {
   left: 0;
 }
 
+@keyframes fadeIn { 
+  from { opacity: 0.2; } 
+}
+.disc-win {
+  animation: fadeIn 0.2s infinite alternate;
+}
+
 .statusbar {
   display: flex;
   position: relative;
