@@ -4,7 +4,7 @@ const Board = require("./Board")
 const InfoBar = require("./InfoBar")
 
 const user = Player(0, "You", "#e82929")
-const ai = Player(1, "Computer", "#dfbc34")
+const ai = Player(1, "Computer", "#f2c000")
 
 const game2state = game => ({
   board: game.board(),
