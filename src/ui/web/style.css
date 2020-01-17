@@ -52,22 +52,28 @@ html {
   animation: fadeIn 0.2s infinite alternate;
 }
 
-.statusbar {
+.playerbar {
   display: flex;
   position: relative;
-  padding: 0.5rem 1.2rem;
+  padding: 0.5rem 1.2rem 0.3rem 1.2rem;
   text-transform: uppercase;
 }
 
-.statusbar div {
+.playerbar div {
   flex: 1;
 }
 
-.statusbar div:last-child {
+.playerbar div:last-child {
   text-align: right;
 }
 
-.statusbar-marker {
+.playerbar-marker {
   position: absolute;
   top: 0.4rem;
+}
+
+.statusbar {
+  border-top: 1px solid black;
+  text-align: center;
+  padding-top: 0.5rem;
 }

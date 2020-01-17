@@ -1,7 +1,7 @@
 const React = require("react")
 const { Game, Player } = require("../../game")
 const Board = require("./Board")
-const StatusBar = require("./StatusBar")
+const InfoBar = require("./InfoBar")
 
 const user = Player(0, "You", "#e82929")
 const ai = Player(1, "Computer", "#dfbc34")
@@ -48,7 +48,7 @@ module.exports = class App extends React.Component {
         onDrop={canDrop ? this.onUserTurn : null}
         win={this.state.win}
       />
-      <StatusBar
+      <InfoBar
         user={user}
         opponent={ai}
         nextPlayerId={this.state.nextPlayerId}
