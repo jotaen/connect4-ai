@@ -7,8 +7,8 @@ function Tile() {
   const r = discRadius
   const p = 5 // padding
   return (
-    <svg viewBox="0 0 100 100">
-      <path fillRule="evenodd" fill={gridColor}
+    <svg className="tile" viewBox="0 0 100 100">
+      <path fill={gridColor}
         d={`
           M -10 -10 H 110 V 110 H -10 L -10 -10
           M ${r}, ${r}
@@ -22,8 +22,9 @@ function Tile() {
 }
 
 function Disc({ color, isWin }) {
+  const classes = `disc ${isWin ? "disc-win" : ""}`
   return (
-    <svg viewBox="0 0 100 100" className={`disc ${isWin ? "disc-win" : ""}`}>
+    <svg viewBox="0 0 100 100" className={classes}>
       <circle cx="50" cy="50" r={discRadius} fill={color} />
     </svg>
   )
@@ -41,11 +42,11 @@ module.exports = function Board({ board, colors, onDrop, win, freeSlots }) {
         style={{borderColor: gridColor, cursor: canDrop ? "pointer" : "default"}}
         onClick={canDrop ? () => onDrop(slot) : null}
       >
-        { x !== null && <Disc
+        <Tile />
+        { x !== null && <div style={{top: `-${row*100+100}%`}} className="disc-container"><Disc
           color={colors[x]}
           isWin={isWin(win, row, slot)}
-        /> }
-        <Tile />
+        /></div> }
         {canDrop && <div
           className="columnmarker"
           style={{top: `-${row*100}%`}}

@@ -17,7 +17,9 @@ html {
   position: relative;
 }
 
-.cell svg {
+.cell .tile {
+  position: relative;
+  z-index: 999;
   display: block;
 }
 
@@ -39,10 +41,13 @@ html {
   display: block;
 }
 
-.disc {
+@keyframes drop { 
+  to { top: 0; } 
+}
+.cell .disc-container {
   position: absolute;
-  top: 0;
   left: 0;
+  animation: drop 0.5s forwards;
 }
 
 @keyframes fadeIn { 
@@ -50,6 +55,7 @@ html {
 }
 .disc-win {
   animation: fadeIn 0.2s infinite alternate;
+  animation-delay: 0.5s;
 }
 
 .playerbar {
