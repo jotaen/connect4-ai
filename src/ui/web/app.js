@@ -11,6 +11,7 @@ const game2state = game => ({
   nextPlayerId: game.nextPlayer() ? game.nextPlayer().id : null,
   isOngoing: game.status().isOngoing,
   win: game.status().win,
+  freeSlots: game.status().freeSlots,
 })
 
 module.exports = class App extends React.Component {
@@ -49,6 +50,7 @@ module.exports = class App extends React.Component {
         colors={colors}
         onDrop={canDrop ? this.onUserTurn : null}
         win={this.state.win}
+        freeSlots={this.state.freeSlots}
       />
       <InfoBar
         user={user}

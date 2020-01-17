@@ -31,15 +31,14 @@ function Disc({ color, isWin }) {
 
 const isWin = (win, row, slot) => !!win && win.findIndex(fd => fd.row===row && fd.slot===slot) !== -1
 
-module.exports = function Board({ board, colors, onDrop, win }) {
-  const canDrop = onDrop !== null
-  const interactiveStyle = {cursor: "pointer"}
-  return <div className="board" style={canDrop ? interactiveStyle : null}>
-    {board.map((xs, row) => xs.map((x, slot) => (
-      <div
+module.exports = function Board({ board, colors, onDrop, win, freeSlots }) {
+  return <div className="board">
+    {board.map((xs, row) => xs.map((x, slot) => {
+      const canDrop = onDrop !== null && freeSlots.includes(slot)
+      return <div
         key={`${row}-${slot}`}
         className="cell"
-        style={{borderColor: gridColor}}
+        style={{borderColor: gridColor, cursor: canDrop ? "pointer" : "default"}}
         onClick={canDrop ? () => onDrop(slot) : null}
       >
         { x !== null && <Disc
@@ -52,6 +51,6 @@ module.exports = function Board({ board, colors, onDrop, win }) {
           style={{top: `-${row*100}%`}}
         ><Disc color={colors[0]} /></div>}
       </div>
-    )))}
+    }))}
   </div>
 }
