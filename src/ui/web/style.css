@@ -2,6 +2,11 @@ html {
   font-family: "Josefin Sans", sans-serif;
 }
 
+button, select, option {
+  font-family: "Josefin Sans", sans-serif;
+  font-size: 1rem;
+}
+
 .app {
   margin: 0 auto;
   max-width: 400px;
@@ -17,10 +22,14 @@ html {
   position: relative;
 }
 
-.cell .tile {
+.tile {
   position: relative;
   z-index: 999;
   display: block;
+}
+
+.tile path {
+  fill: #294075;
 }
 
 .cell .columnmarker {
@@ -81,5 +90,11 @@ html {
 .statusbar {
   border-top: 1px solid black;
   text-align: center;
-  padding-top: 0.5rem;
+  padding: 0.5rem 0;
+}
+
+.controllbar {
+  display: flex;
+  background-color: #294075;
+  padding: 0.3rem 0.5rem;
 }

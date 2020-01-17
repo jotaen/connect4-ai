@@ -11,8 +11,17 @@ const textWinner = {
   1: "Computer has won!",
 }
 
-module.exports = function InfoBar({ user, opponent, nextPlayerId, colors, win, isOngoing }) {
+module.exports = function InfoBar({ user, opponent, nextPlayerId, colors, win, isOngoing, onNewGame, onSetDifficulty, difficulty }) {
   return <>
+  <div className="controllbar">
+      <button onClick={onNewGame}>New Game</button>
+      <span style={{flex: 1}}></span>
+      <select onChange={onSetDifficulty} disabled={onSetDifficulty === null} value={difficulty}>
+        <option value="EASY">Easy</option>
+        <option value="MEDIUM">Medium</option>
+        <option value="HARD">Hard</option>
+      </select>
+    </div>
     <div className="playerbar">
       <div>
         {nextPlayerId === 0 && <div

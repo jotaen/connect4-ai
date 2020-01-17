@@ -1,6 +1,5 @@
 const React = require("react")
 
-const gridColor = "#294075"
 const discRadius = 45
 
 function Tile() {
@@ -8,7 +7,7 @@ function Tile() {
   const p = 5 // padding
   return (
     <svg className="tile" viewBox="0 0 100 100">
-      <path fill={gridColor}
+      <path
         d={`
           M -10 -10 H 110 V 110 H -10 L -10 -10
           M ${r}, ${r}
@@ -39,7 +38,7 @@ module.exports = function Board({ board, colors, onDrop, win, freeSlots }) {
       return <div
         key={`${row}-${slot}`}
         className="cell"
-        style={{borderColor: gridColor, cursor: canDrop ? "pointer" : "default"}}
+        style={{cursor: canDrop ? "pointer" : "default"}}
         onClick={canDrop ? () => onDrop(slot) : null}
       >
         <Tile />
