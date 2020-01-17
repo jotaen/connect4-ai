@@ -3,7 +3,7 @@ const { Game, Player } = require("../../game")
 const Board = require("./Board")
 const StatusBar = require("./StatusBar")
 
-const user = Player(0, "Hansi", "#e82929")
+const user = Player(0, "You", "#e82929")
 const ai = Player(1, "Computer", "#dfbc34")
 
 const game2state = game => ({
