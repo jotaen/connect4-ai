@@ -1,7 +1,6 @@
 const { move } = require("../../ai/ai")
 
 onmessage = function(e) {
-  console.log(e.data)
   const config = {
     winningLength: e.data.winningLength,
     players: e.data.players,

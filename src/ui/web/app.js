@@ -1,7 +1,7 @@
 const React = require("react")
 const { Game, Player } = require("../../game")
 const Board = require("./Board")
-const InfoBar = require("./InfoBar")
+const { ControlBar, PlayerBar, StatusBar } = require("./Bars")
 
 const user = Player(0, "You", "#e82929")
 const ai = Player(1, "Computer", "#f2c000")
@@ -81,16 +81,21 @@ module.exports = class App extends React.Component {
         win={this.state.win}
         freeSlots={this.state.freeSlots}
       />
-      <InfoBar
+      <ControlBar
+        onSetDifficulty={canDrop ? this.changeDifficulty : null}
+        onNewGame={this.startNewGame}
+        difficulty={this.state.difficulty}
+      />
+      <PlayerBar
         user={user}
         opponent={ai}
         nextPlayerId={this.state.nextPlayerId}
         colors={colors}
+      />
+      <StatusBar
+        nextPlayerId={this.state.nextPlayerId}
         isOngoing={this.state.isOngoing}
         win={this.state.win}
-        onSetDifficulty={canDrop ? this.changeDifficulty : null}
-        onNewGame={this.startNewGame}
-        difficulty={this.state.difficulty}
       />
     </div>
   }
