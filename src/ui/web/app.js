@@ -21,11 +21,12 @@ const printDebug = (player, data) => {
   console.log(`[${player.name.toUpperCase()}] ` + debugInfo)
 }
 
+const BASIS = 300
 const DIFFICULTIES = {
-  "Easy": 1500,
-  "Medium": 4000,
-  "Advanced": 12000,
-  "Hard": 20000,
+  "Easy": BASIS,
+  "Medium": BASIS * 5,
+  "Advanced": BASIS * 5 * 4,
+  "Hard": BASIS * 5 * 4 * 3,
 }
 
 module.exports = class App extends React.Component {
@@ -39,7 +40,7 @@ module.exports = class App extends React.Component {
 
     this.startNewGame()
     this.state = {
-      difficulty: Object.keys(DIFFICULTIES)[0],
+      difficulty: Object.keys(DIFFICULTIES)[1],
       ...game2state(this._game),
     }
   }
