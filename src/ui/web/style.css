@@ -6,15 +6,26 @@
 .board {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
+  margin-top: 1.5rem;;
 }
 
 .cell {
   position: relative;
-  border-width: 3px;
-  border-style: solid;
 }
 
 .cell svg {
+  display: block;
+}
+
+.cell .columnmarker {
+  display: none;
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  margin-top: -1.25rem;
+}
+
+.cell:hover .columnmarker {
   display: block;
 }
 
@@ -27,7 +38,7 @@
 .statusbar {
   display: flex;
   position: relative;
-  padding: 5px 20px;
+  padding: 0.3rem 1.3rem;
 }
 
 .statusbar div {
@@ -40,5 +51,5 @@
 
 .statusbar-marker {
   position: absolute;
-  top: 4px;
+  top: 0.3rem;
 }
