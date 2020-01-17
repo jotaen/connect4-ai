@@ -29,6 +29,12 @@ html {
   margin-top: -1.25rem;
 }
 
+.columnmarker .disc {
+  position: relative;
+  width: 30%;
+  margin: 0 auto;
+}
+
 .cell:hover .columnmarker {
   display: block;
 }

@@ -40,10 +40,11 @@ module.exports = class App extends React.Component {
 
   render() {
     const canDrop = this.state.nextPlayerId === user.id && this.state.isOngoing
+    const colors = {[user.id]: user.symbol, [ai.id]: ai.symbol}
     return <div className="app">
       <Board
         board={this.state.board}
-        colours={{[user.id]: user.symbol, [ai.id]: ai.symbol}}
+        colors={colors}
         onDrop={canDrop ? this.onUserTurn : null}
         win={this.state.win}
       />
@@ -51,6 +52,7 @@ module.exports = class App extends React.Component {
         user={user}
         opponent={ai}
         nextPlayerId={this.state.nextPlayerId}
+        colors={colors}
       />
     </div>
   }

@@ -1,14 +1,14 @@
 const React = require("react")
 
-const gridColour = "#294075"
+const gridColor = "#294075"
 const discRadius = 45
 
-function Container() {
+function Tile() {
   const r = discRadius
   const p = 5 // padding
   return (
     <svg viewBox="0 0 100 100">
-      <path fillRule="evenodd" fill={gridColour}
+      <path fillRule="evenodd" fill={gridColor}
         d={`
           M -10 -10 H 110 V 110 H -10 L -10 -10
           M ${r}, ${r}
@@ -21,10 +21,10 @@ function Container() {
   )
 }
 
-function Disc({ colour, isWin }) {
+function Disc({ color, isWin }) {
   return (
     <svg viewBox="0 0 100 100" className="disc">
-      <circle cx="50" cy="50" r={discRadius} fill={colour} />
+      <circle cx="50" cy="50" r={discRadius} fill={color} />
       {isWin && <circle cx="50" cy="50" r="10" fill="black" />}
     </svg>
   )
@@ -32,7 +32,7 @@ function Disc({ colour, isWin }) {
 
 const isWin = (win, row, slot) => !!win && win.findIndex(fd => fd.row===row && fd.slot===slot) !== -1
 
-module.exports = function Board({ board, colours, onDrop, win }) {
+module.exports = function Board({ board, colors, onDrop, win }) {
   const canDrop = onDrop !== null
   const interactiveStyle = {cursor: "pointer"}
   return <div className="board" style={canDrop ? interactiveStyle : null}>
@@ -40,15 +40,18 @@ module.exports = function Board({ board, colours, onDrop, win }) {
       <div
         key={`${row}-${slot}`}
         className="cell"
-        style={{borderColor: gridColour}}
+        style={{borderColor: gridColor}}
         onClick={canDrop ? () => onDrop(slot) : null}
       >
-          { x !== null && <Disc
-            colour={colours[x]}
-            isWin={isWin(win, row, slot)}
-          /> }
-        <Container />
-        {canDrop && <div className="columnmarker" style={{top: `-${row*100}%`}}>▼</div>}
+        { x !== null && <Disc
+          color={colors[x]}
+          isWin={isWin(win, row, slot)}
+        /> }
+        <Tile />
+        {canDrop && <div
+          className="columnmarker"
+          style={{top: `-${row*100}%`}}
+        ><Disc color={colors[0]} /></div>}
       </div>
     )))}
   </div>
