@@ -25,8 +25,7 @@ module.exports = class App extends React.Component {
     this.changeDifficulty = this.changeDifficulty.bind(this)
     this.startNewGame = this.startNewGame.bind(this)
 
-    this.props.worker.onmessage = e => this.putForAi(e.data)
-    this._game = stdGame()
+    this.startNewGame()
     this.state = {
       difficulty: "EASY",
       ...game2state(this._game),
@@ -43,7 +42,7 @@ module.exports = class App extends React.Component {
     if (this._game.nextPlayer() !== ai) {
       return
     }
-    this.props.worker.postMessage({
+    this._worker.postMessage({
       winningLength: this._game.status().winningLength,
       players: [ai.id, user.id],
       board: this._game.board(),
@@ -65,8 +64,12 @@ module.exports = class App extends React.Component {
   }
 
   startNewGame() {
-    this.props.worker.terminate()
+    if (this._worker) {
+      this._worker.terminate()
+    }
     this._game = stdGame()
+    this._worker = new Worker(this.props.workerUrl)
+    this._worker.onmessage = e => this.putForAi(e.data)
     this.setState(game2state(this._game))
   }
 
