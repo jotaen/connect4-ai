@@ -25,11 +25,13 @@ module.exports = class App extends React.Component {
 
   onUserTurn(slot) {
     this._game.tryPut(user, slot)
-    this.props.worker.postMessage({
-      winningLength: this._game.status().winningLength,
-      players: [ai.id, user.id],
-      board: this._game.board(),
-    })
+    if (this._game.nextPlayer() === ai) {
+      this.props.worker.postMessage({
+        winningLength: this._game.status().winningLength,
+        players: [ai.id, user.id],
+        board: this._game.board(),
+      })
+    }
     this.setState(game2state(this._game))
   }
 
