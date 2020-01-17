@@ -23,3 +23,22 @@
   top: 0;
   left: 0;
 }
+
+.statusbar {
+  display: flex;
+  position: relative;
+  padding: 5px 20px;
+}
+
+.statusbar div {
+  flex: 1;
+}
+
+.statusbar div:last-child {
+  text-align: right;
+}
+
+.statusbar-marker {
+  position: absolute;
+  top: 4px;
+}

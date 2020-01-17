@@ -18,14 +18,14 @@ Game.prototype.players = function() {
 };
 
 Game.prototype.tryPut = function(player, slotId) {
+  if (!this.status().isOngoing) {
+    throw "GAME_COMPLETED"
+  }
   if (this.nextPlayer() !== player) {
     throw "NOT_NEXT"
   }
   if (!Number.isInteger(slotId) || slotId < 0 || slotId > this._board[0].length-1) {
     throw "INVALID_SLOT"
-  }
-  if (!this.status().isOngoing) {
-    throw "GAME_COMPLETED"
   }
   const nextState = putIntoSlot(player.id, slotId, this._board)
   if (nextState === null) {
@@ -49,6 +49,9 @@ Game.prototype.status = function() {
 }
 
 Game.prototype.nextPlayer = function() {
+  if (!this.status().isOngoing) {
+    return null
+  }
   return this._players[this._nextPlayerIt]
 }
 

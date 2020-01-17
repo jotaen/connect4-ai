@@ -8,7 +8,7 @@ const ai = Player(1, "Computer", "#dfbc34")
 
 const game2state = game => ({
   board: game.board(),
-  isUserNext: game.nextPlayer() === user,
+  nextPlayerId: game.nextPlayer() ? game.nextPlayer().id : null,
   isOngoing: game.status().isOngoing,
   win: game.status().win,
 })
@@ -39,7 +39,7 @@ module.exports = class App extends React.Component {
   }
 
   render() {
-    const canDrop = this.state.isUserNext && this.state.isOngoing
+    const canDrop = this.state.nextPlayerId === user.id && this.state.isOngoing
     return <div className="app">
       <Board
         board={this.state.board}
@@ -50,7 +50,7 @@ module.exports = class App extends React.Component {
       <StatusBar
         user={user}
         opponent={ai}
-        isUserNext={this.state.isUserNext}
+        nextPlayerId={this.state.nextPlayerId}
       />
     </div>
   }

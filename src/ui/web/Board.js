@@ -7,7 +7,7 @@ function Container() {
     <svg viewBox="0 0 100 100">
       <path fillRule="evenodd" fill={gridColour}
         d="
-        M -1 -1 H 102 V 102 H -1 L -1 -1
+        M -10 -10 H 110 V 110 H -10 L -10 -10
         M 50, 50
         m -50, 0
         a 50,50 0 1,0 100,0
@@ -27,7 +27,7 @@ function Disc({ colour, isWin }) {
   )
 }
 
-const isInWin = (win, row, slot) => !!win && win.findIndex(fd => fd.row===row && fd.slot===slot) !== -1
+const isWin = (win, row, slot) => !!win && win.findIndex(fd => fd.row===row && fd.slot===slot) !== -1
 
 module.exports = function Board({ board, colours, onDrop, win }) {
   const interactiveStyle = {cursor: "pointer"}
@@ -42,7 +42,7 @@ module.exports = function Board({ board, colours, onDrop, win }) {
         <Container />
         { x !== null && <Disc
           colour={colours[x]}
-          isWin={isInWin(win, row, slot)}
+          isWin={isWin(win, row, slot)}
         /> }
       </div>
     )))}

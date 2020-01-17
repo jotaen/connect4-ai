@@ -54,7 +54,9 @@ describe("Game", () => {
       g.tryPut(g.nextPlayer(), 2)
       assert.strictEqual(g.status().isOngoing, true)
       g.tryPut(g.nextPlayer(), 1)
+
       assert.strictEqual(g.status().isOngoing, false)
+      assert.strictEqual(g.nextPlayer(), null)
       assert.deepStrictEqual(g.status().win, [Fd(3,1,1), Fd(4,1,1), Fd(5,1,1)])
     })
 
