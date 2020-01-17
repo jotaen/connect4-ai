@@ -1,3 +1,7 @@
+html {
+  font-family: "Josefin Sans", sans-serif;
+}
+
 .app {
   margin: 0 auto;
   max-width: 400px;
@@ -38,7 +42,8 @@
 .statusbar {
   display: flex;
   position: relative;
-  padding: 0.3rem 1.3rem;
+  padding: 0.5rem 1.2rem;
+  text-transform: uppercase;
 }
 
 .statusbar div {
@@ -51,5 +56,5 @@
 
 .statusbar-marker {
   position: absolute;
-  top: 0.3rem;
+  top: 0.4rem;
 }
