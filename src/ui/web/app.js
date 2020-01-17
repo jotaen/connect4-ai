@@ -16,6 +16,11 @@ const game2state = game => ({
 
 const stdGame = () => new Game([user, ai], 6, 7, 4)
 
+const printDebug = (player, data) => {
+  const debugInfo = Object.entries(data).map(([k, v]) => k + ": " + v).join(" | ")
+  console.log(`[${player.name.toUpperCase()}] ` + debugInfo)
+}
+
 module.exports = class App extends React.Component {
   constructor(props) {
     super(props)
@@ -36,6 +41,10 @@ module.exports = class App extends React.Component {
     this._game.tryPut(user, slot)
     this.setState(game2state(this._game))
     this.triggerAi()
+
+    printDebug(user, {
+      "Slot": slot + 1,
+    })
   }
 
   triggerAi() {
@@ -57,6 +66,14 @@ module.exports = class App extends React.Component {
   putForAi(result) {
     this._game.tryPut(ai, result.slot)
     this.setState(game2state(this._game))
+
+    printDebug(ai, {
+      "Slot": result.slot + 1,
+      "Time": `${result.runtimeMs} ms`,
+      "Score": {[-1]: "LOST", 0: "DRAW", 1: "WIN", [null]: "???"}[result.score],
+      "Iterations": result.iterationCount,
+      "Max turns ahead": result.maxIterationDepth + 1,
+    })
   }
 
   changeDifficulty(e) {
@@ -71,6 +88,7 @@ module.exports = class App extends React.Component {
     this._worker = new Worker(this.props.workerUrl)
     this._worker.onmessage = e => this.putForAi(e.data)
     this.setState(game2state(this._game))
+    console.log("====== NEW GAME ======")
   }
 
   render() {
