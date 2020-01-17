@@ -1,14 +1,12 @@
 const React = require("react")
 
-module.exports.ControlBar = function ControlBar({ onNewGame, onSetDifficulty, difficulty }) {
+module.exports.ControlBar = function ControlBar({ onNewGame, onSetDifficulty, difficulty, difficulties }) {
   return (
     <div className="controllbar">
       <button onClick={onNewGame}>New Game</button>
       <span style={{flex: 1}}></span>
       <select onChange={onSetDifficulty} disabled={onSetDifficulty === null} value={difficulty}>
-        <option value="EASY">Easy</option>
-        <option value="MEDIUM">Medium</option>
-        <option value="HARD">Hard</option>
+        {difficulties.map(d => <option key={d} value={d}>{d}</option>)}
       </select>
     </div>
   )

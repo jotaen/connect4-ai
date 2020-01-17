@@ -46,7 +46,7 @@ button, select, option {
   margin: 0 auto;
 }
 
-.cell:hover .columnmarker {
+.cell:hover:not(:focus) .columnmarker {
   display: block;
 }
 

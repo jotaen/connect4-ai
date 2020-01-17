@@ -21,6 +21,13 @@ const printDebug = (player, data) => {
   console.log(`[${player.name.toUpperCase()}] ` + debugInfo)
 }
 
+const DIFFICULTIES = {
+  "Easy": 1500,
+  "Medium": 4000,
+  "Advanced": 12000,
+  "Hard": 20000,
+}
+
 module.exports = class App extends React.Component {
   constructor(props) {
     super(props)
@@ -32,7 +39,7 @@ module.exports = class App extends React.Component {
 
     this.startNewGame()
     this.state = {
-      difficulty: "EASY",
+      difficulty: Object.keys(DIFFICULTIES)[0],
       ...game2state(this._game),
     }
   }
@@ -55,11 +62,7 @@ module.exports = class App extends React.Component {
       winningLength: this._game.status().winningLength,
       players: [ai.id, user.id],
       board: this._game.board(),
-      iterationBudget: {
-        "EASY": 3000,
-        "MEDIUM": 9000,
-        "HARD": 15000,
-      }[this.state.difficulty]
+      iterationBudget: DIFFICULTIES[this.state.difficulty]
     })
   }
 
@@ -106,6 +109,7 @@ module.exports = class App extends React.Component {
         onSetDifficulty={canDrop ? this.changeDifficulty : null}
         onNewGame={this.startNewGame}
         difficulty={this.state.difficulty}
+        difficulties={Object.keys(DIFFICULTIES)}
       />
       <PlayerBar
         user={user}
