@@ -2,7 +2,6 @@
 
 rm -rf ./dist
 
-./node_modules/.bin/parcel serve \
-  --port 8080 \
-  --hmr-port 8081 \
+./node_modules/.bin/parcel build \
+  --public-url ./ \
   ./src/ui/web/index.html ./src/ui/web/worker.js
