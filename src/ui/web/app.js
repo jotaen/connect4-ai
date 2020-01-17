@@ -57,6 +57,8 @@ module.exports = class App extends React.Component {
         opponent={ai}
         nextPlayerId={this.state.nextPlayerId}
         colors={colors}
+        isOngoing={this.state.isOngoing}
+        win={this.state.win}
       />
     </div>
   }

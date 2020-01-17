@@ -1,6 +1,17 @@
 const React = require("react")
 
-module.exports = function InfoBar({ user, opponent, nextPlayerId, colors }) {
+const textNextUp = {
+  0: "It’s your turn",
+  1: "Computer is thinking…",
+}
+
+const textWinner = {
+  [-1]: "Game ends with draw", 
+  0: "Congratulations, you have won!",
+  1: "Computer has won!",
+}
+
+module.exports = function InfoBar({ user, opponent, nextPlayerId, colors, win, isOngoing }) {
   return <>
     <div className="playerbar">
       <div>
@@ -19,10 +30,7 @@ module.exports = function InfoBar({ user, opponent, nextPlayerId, colors }) {
       </div>
     </div>
     <div className="statusbar">
-      {{
-        0: "It’s your turn",
-        1: "Computer is thinking…",
-      }[nextPlayerId]}
+      {isOngoing ? textNextUp[nextPlayerId] : textWinner[win ? win[0].value : -1]}
     </div>
   </>
 }
