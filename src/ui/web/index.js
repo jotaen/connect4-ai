@@ -7,4 +7,9 @@ const config = Object.freeze({
   workerUrl: "./worker.js",
 })
 
-ReactDOM.render(<App workerUrl={config.workerUrl} />, config.appContainer)
+fetch(config.workerUrl)
+  .then(res => res.blob())
+  .then(blob => {
+    const createWorker = () => new Worker(window.URL.createObjectURL(blob))
+    ReactDOM.render(<App createWorker={createWorker} />, config.appContainer)
+  })

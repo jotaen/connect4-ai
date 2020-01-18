@@ -89,7 +89,7 @@ module.exports = class App extends React.Component {
       this._worker.terminate()
     }
     this._game = stdGame()
-    this._worker = new Worker(this.props.workerUrl)
+    this._worker = this.props.createWorker()
     this._worker.onmessage = e => this.putForAi(e.data)
     this.setState(game2state(this._game))
     console.log("====== NEW GAME ======")
