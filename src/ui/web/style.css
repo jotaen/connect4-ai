@@ -102,3 +102,28 @@ button, select, option {
   background-color: #294075;
   padding: 0.3rem 0.5rem;
 }
+
+@keyframes spinnerblink {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.spinner {
+  margin: 0 0.3rem;
+}
+
+.spinner span {
+  animation: spinnerblink 0.3s infinite alternate;
+}
+
+.spinner span:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.spinner span:nth-child(3) {
+  animation-delay: 0.2s;
+}

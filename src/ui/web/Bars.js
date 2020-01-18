@@ -35,13 +35,17 @@ module.exports.PlayerBar = function PlayerBar({ user, opponent, nextPlayerId, co
 
 const textNextUp = {
   0: "It’s your turn",
-  1: "Computer is thinking…",
+  1: <span>Computer is thinking<Spinner/></span>,
 }
 
 const textWinner = {
   [-1]: "Game ends with draw", 
   0: "Congratulations, you have won!",
   1: "Computer has won!",
+}
+
+function Spinner() {
+  return <span className="spinner"><span>•</span><span>•</span><span>•</span></span>
 }
 
 module.exports.StatusBar = function StatusBar({ nextPlayerId, win, isOngoing }) {
