@@ -40,7 +40,7 @@ module.exports = function Board({ board, colors, onDrop, win, freeSlots }) {
         className="cell button-reset"
         style={{cursor: canDrop ? "pointer" : "default"}}
         onClick={canDrop ? () => onDrop(slot) : null}
-        tabindex={row === 0 ? 0 : -1}
+        tabIndex={row === 0 ? 0 : -1}
       >
         <Tile />
         { x !== null && <div style={{top: `-${row*100+100}%`}} className="disc-container"><Disc
