@@ -2,6 +2,10 @@ html {
   font-family: "Josefin Sans", sans-serif;
 }
 
+body {
+  margin: 0;
+}
+
 button, select, option {
   font-family: "Josefin Sans", sans-serif;
   font-size: 1rem;
@@ -90,7 +94,7 @@ button, select, option {
 .statusbar {
   border-top: 1px solid black;
   text-align: center;
-  padding: 0.5rem 0;
+  padding-top: 0.5rem;
 }
 
 .controllbar {
