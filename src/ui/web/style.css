@@ -50,8 +50,11 @@ button, select, option {
   margin: 0 auto;
 }
 
-.cell:hover:not(:focus) .columnmarker {
-  display: block;
+@media (hover: hover) {
+  /* Disable effect on non-hover devices (touch) */
+  .cell:hover .columnmarker {
+    display: block;
+  }
 }
 
 @keyframes drop { 
