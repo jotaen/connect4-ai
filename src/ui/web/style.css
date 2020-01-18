@@ -94,6 +94,7 @@ button, select, option {
 .playerbar-marker {
   position: absolute;
   top: 0.4rem;
+  width: 1rem;
 }
 
 .statusbar {

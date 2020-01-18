@@ -12,22 +12,32 @@ module.exports.ControlBar = function ControlBar({ onNewGame, onSetDifficulty, di
   )
 }
 
+function Marker({ color, direction }) {
+  const ps = {
+    ["RIGHT"]: "0,0 100,50 0,100",
+    ["LEFT"]: "100,0 0,50 100,100",
+  }
+  return <svg viewBox="0 0 100 100">
+    <polygon points={ps[direction]} fill={color} />
+  </svg>
+}
+
 module.exports.PlayerBar = function PlayerBar({ user, opponent, nextPlayerId, colors }) {
   return (
     <div className="playerbar">
       <div>
         {nextPlayerId === 0 && <div
-          style={{left: 0, color: colors[user.id]}}
+          style={{left: 0}}
           className="playerbar-marker"
-        >▶</div>}
+        ><Marker color={colors[user.id]} direction={"RIGHT"} /></div>}
         {user.name}
       </div>
       <div>
         {opponent.name}
         {nextPlayerId === 1 && <div
-          style={{right: 0, color: colors[opponent.id]}}
+          style={{right: 0}}
           className="playerbar-marker"
-        >◀</div>}
+        ><Marker color={colors[opponent.id]} direction={"LEFT"} /></div>}
       </div>
     </div>
   )
