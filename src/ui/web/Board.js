@@ -35,11 +35,12 @@ module.exports = function Board({ board, colors, onDrop, win, freeSlots }) {
   return <div className="board">
     {board.map((xs, row) => xs.map((x, slot) => {
       const canDrop = onDrop !== null && freeSlots.includes(slot)
-      return <div
+      return <button
         key={`${row}-${slot}`}
-        className="cell"
+        className="cell button-reset"
         style={{cursor: canDrop ? "pointer" : "default"}}
         onClick={canDrop ? () => onDrop(slot) : null}
+        tabindex={row === 0 ? 0 : -1}
       >
         <Tile />
         { x !== null && <div style={{top: `-${row*100+100}%`}} className="disc-container"><Disc
@@ -50,7 +51,7 @@ module.exports = function Board({ board, colors, onDrop, win, freeSlots }) {
           className="columnmarker"
           style={{top: `-${row*100}%`}}
         ><Disc color={colors[0]} /></div>}
-      </div>
+      </button>
     }))}
   </div>
 }
