@@ -1,5 +1,5 @@
 const assert = require("assert")
-const { randomise } = require("./randomising")
+const { randomiseChance } = require("./randomising")
 
 const isBetween = (lower, upper) => x => x > lower && x < upper
 
@@ -14,7 +14,7 @@ describe("Randomising", () => {
       5: 0,
       6: 0,
     }
-    const rand = randomise(Math.random)
+    const rand = randomiseChance(Math.random)
     for (let i=0; i<10000; i++) {
       const chances = rand([{},{},{},{},{},{},{}]).map(nr => nr.chance)
       const slot = chances.indexOf(Math.max(...chances))
@@ -27,7 +27,7 @@ describe("Randomising", () => {
   })
 
   it("doesn’t overwrite chances above threshold", () => {
-    const rand = randomise(() => 0)
+    const rand = randomiseChance(() => 0)
     const chances = rand([{},{chance: 1},{},{},{},{chance: 25},{}])
     assert.strictEqual(chances[0].chance, 0)
     assert.strictEqual(chances[1].chance, 1)

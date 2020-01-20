@@ -9,7 +9,7 @@ const canDeepen = R.both(
   R.any(nr => nr.score === SCORE.UNKNOWN),
 )
 
-// :: (...) -> [NodeResult] -> [NodeResult]
+// :: (… -> [NodeResults]) -> Config, Stats, Map, Map, Number, Board, [Number] -> [NodeResult]
 const deepening = evalFn =>
   (config, stats, persistentCache, transientCache, maxItDepth, board) => R.compose(
     F.mapIterateUntil(

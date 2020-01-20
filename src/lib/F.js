@@ -1,6 +1,6 @@
 const R = require("ramda")
 
-// :: ((a, Number) -> a)
+// :: (a, Number -> b) -> [a] -> [b]
 const mapIndexed = R.addIndex(R.map)
 
 // :: a -> Number -> Number -> [a]
@@ -16,13 +16,13 @@ const peek = R.curry((fn, x) => {
   return x
 })
 
-// :: [a] -> bool
+// :: Number, [a] -> bool
 const hasLength = R.curry((l, xs) => R.length(xs) === l)
 
-// :: (a -> Number) -> (a, a) -> a
+// :: (a -> Number) -> a, a -> a
 const maxBy = fn => (x, y) => fn(x) > fn(y) ? x : y
 
-// :: (a -> Number) -> (a, a) -> a
+// :: (a -> Number) -> a, a -> a
 const minBy = fn => (x, y) => fn(x) < fn(y) ? x : y
 
 // :: [[a]] -> [[a]]
@@ -33,9 +33,10 @@ const transposeDiagonal = xxs => R.compose(
   mapIndexed((xs, i) => [[xxs.length-i-1, i], xs]),
 )(xxs)
 
-// :: Number -> ((Number, Number) -> Number) -> [Number]
+// :: Number -> (Number, Number -> Number) -> [Number]
 const compareCloseTo = pivot => (a, b) => (Math.abs(a - pivot) - Math.abs(b - pivot) || b - a)
 
+// :: ([a] -> bool), ([a] -> b) -> [a] -> [b]
 const mapIterateUntil = (predicate, fn) => xs => {
   let loopCount = 0
   for (let i=0; predicate(xs); i++) {

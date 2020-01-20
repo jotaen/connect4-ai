@@ -7,32 +7,20 @@ const { deepening, skipPostProcess } = require("./deepening")
 const { mapWithPruning } = require("./pruning")
 const { prioritiseSlots } = require("./predicting")
 const { withCache } = require("./caching")
-const { randomise } = require("./randomising")
+const { randomiseChance } = require("./randomising")
 const { SCORE, Config, NodeResult, Node, Stats } = require("./datastructures")
 
 const toNodeResult = evalFn => (config, stats, persistentCache, transientCache) => node => {
   const currScore = score(config, node)
   const shouldGoDeeper = (currScore === SCORE.UNKNOWN && node.depth < node.maxDepth)
   if (shouldGoDeeper) {
-    const deeperNR = evalFn(config, stats, persistentCache, transientCache, skipPostProcess, node.maxDepth, node.depth+1)(node.board, freeSlots(node.board))
-    return NodeResult(
-      node.field.slot,
-      deeperNR.score,
-      node.isMax,
-      deeperNR.chance,
-      deeperNR.depth,
-    )
+    const dnr = evalFn(config, stats, persistentCache, transientCache, skipPostProcess, node.maxDepth, node.depth+1)(node.board, freeSlots(node.board))
+    return NodeResult(node.field.slot, dnr.score, node.isMax, dnr.chance, dnr.depth)
   }
-  return NodeResult(
-    node.field.slot,
-    currScore,
-    node.isMax,
-    undefined,
-    node.depth,
-  )
+  return NodeResult(node.field.slot, currScore, node.isMax, undefined, node.depth)
 }
 
-// :: (Config, ([NodeResult] -> [NodeResult]), Number) -> (Board, [Number]) -> NodeResult
+// :: Config, Stats, Map, Map, ([NodeResults] -> [NodeResults]), Number, Number, Board, [Number] -> NodeResult
 const evaluate = R.curry((config, stats, persistentCache, transientCache, postprocessFn, maxItDepth, itDepth) =>
   withCache((board, nextSlots) => R.compose(
     findSuccessor,
@@ -45,11 +33,11 @@ const evaluate = R.curry((config, stats, persistentCache, transientCache, postpr
 )
 
 const topLevelProcessing = config => evalFn => (...args) => R.compose(
-  randomise(config.random),
+  randomiseChance(config.random),
   deepening(evalFn)(...args),
 )
 
-// :: ({...}, Board) -> {...}
+// :: ({…}, Board) -> Move
 const move = (userOpts, board) => {
   const slots = freeSlots(board)
   const config = Config(userOpts, slots)

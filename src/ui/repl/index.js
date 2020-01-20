@@ -25,7 +25,6 @@ aiPlayer.onTurn = (me, board, status) => {
     random: () => Math.random(),
   }
   const result = ai.move(config, board)
-  console.log(result)
   return new Promise(r => r(result.slot))
 }
 

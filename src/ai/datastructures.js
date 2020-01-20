@@ -8,13 +8,13 @@ const SCORE = {
   UNKNOWN: null,
 }
 
-// :: ([any], Number) -> any
+// :: [Number], Number -> any
 const playerOnTurn = (players, itDepth) => players[itDepth%players.length]
 
-// :: ([any], Number) -> Number
+// :: [Number], Number -> Number
 const isMaxOnTurn = (players, itDepth) => itDepth%players.length === 0
 
-// :: (Number, Number, bool) -> NodeResult
+// :: Number, Number, bool, Number, Number -> NodeResult
 const NodeResult = (slot, score, isMax, chance, depth) => ({
   slot,
   score,
@@ -23,7 +23,7 @@ const NodeResult = (slot, score, isMax, chance, depth) => ({
   depth,
 })
 
-// :: (Config, Number, Board) -> Number -> Node
+// :: Config, Number, Number, Board -> Number -> Node
 const Node = (config, maxDepth, itDepth, board) => slot => {
   const player = playerOnTurn(config.players, itDepth)
   const nextState = putIntoSlot(player, slot, board)
@@ -36,6 +36,7 @@ const Node = (config, maxDepth, itDepth, board) => slot => {
   }
 }
 
+// :: {…} -> Config
 const Config = (opts) => Object.freeze({
   winningLength: opts.winningLength,
   players: opts.players,
@@ -43,6 +44,7 @@ const Config = (opts) => Object.freeze({
   random: opts.random || (() => 1),
 })
 
+// :: () -> Stats
 const Stats = () => ({
   iterationCount: 0,
   maxDepth: 0,

@@ -3,7 +3,8 @@ const F = require("../lib/F")
 const DISTRIBUTION_FACTOR = 0.5
 const CHANCE_THRESHOLD = 1
 
-const randomise = next => F.mapIndexed((nr, i) => {
+// :: [NodeResult] -> [NodeResult]
+const randomiseChance = next => F.mapIndexed((nr, i) => {
   if (nr.chance < CHANCE_THRESHOLD) {
     nr.chance = undefined
   }
@@ -14,5 +15,5 @@ const randomise = next => F.mapIndexed((nr, i) => {
 })
 
 module.exports = {
-  randomise,
+  randomiseChance,
 }

@@ -3,7 +3,7 @@ const F = require("../lib/F")
 const { isWin, hasFreeSlots } = require("../board")
 const { SCORE } = require("./datastructures")
 
-// :: (((Board, [Number]) -> Number), Config, Node) -> Number
+// :: Config, Node -> Number
 const score = (config, node) => {
   if (isWin(config.winningLength, node.board, node.field)) {
     return node.isMax ? SCORE.WIN : SCORE.LOST
@@ -14,9 +14,10 @@ const score = (config, node) => {
   return SCORE.UNKNOWN
 }
 
-// NodeResult -> Number
+// :: NodeResult -> Number
 const relScore = nr => nr.score === SCORE.UNKNOWN ? nr.score : nr.score / (nr.depth + 1)
 
+// :: (Number, Number -> bool) -> Number, Number -> Number
 const pickBest = compareFn => (a, b) => (() => {
   if (a.score === SCORE.UNKNOWN && b.score === SCORE.UNKNOWN) {
     return a.chance > b.chance ? a : b

@@ -2,7 +2,7 @@ const R = require("ramda")
 const { hash } = require("../board")
 const { SCORE } = require("./datastructures")
 
-// :: ... -> NodeResult
+// :: (Board, [Number] -> NodeResult), Map, Map -> Board, [Number] -> NodeResult
 const withCache = (evalFn, persistentCache, transientCache) => (board, slots) => {
   const h = hash(board)
   const cached = persistentCache.get(h) || transientCache.get(h)

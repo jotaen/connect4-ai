@@ -1,10 +1,10 @@
 const R = require("ramda")
 const F = require("./F")
 
-// any -> any
+// :: any -> any
 const _print = F.peek(console.log)
 
-// [[any]] -> String
+// :: {…}, Board -> String
 const board2string = (options, board) => {
   const opts = Object.assign({
     playerSymbols: {},
