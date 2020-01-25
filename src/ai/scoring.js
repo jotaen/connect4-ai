@@ -31,20 +31,19 @@ const pickBest = compareFn => (a, b) => (() => {
   return (compareFn(relScore(a), relScore(b))) ? a : b
 })()
 
+// :: [NodeResult] -> Number
+const averageChance = nrs => R.compose(
+  x => x/nrs.length,
+  R.sum,
+  R.reject(R.isNil),
+  R.map(nr => nr.score === SCORE.WIN ?
+    Math.pow(1/relScore(nr), 2) : nr.chance),
+)(nrs)
+
 // :: [NodeResult] -> NodeResult
 const findSuccessor = nrs => R.compose(
   nr => {
-    const chance = R.compose(
-      x => x/nrs.length,
-      R.sum,
-      R.reject(R.isNil),
-      R.map(n => {
-        if (n.score === SCORE.WIN) {
-          return Math.pow(1/relScore(n), 2)
-        }
-        return n.chance
-      }),
-    )(nrs)
+    const chance = averageChance(nrs)
     if (chance > 0) {
       nr.chance = chance
     }

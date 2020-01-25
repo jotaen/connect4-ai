@@ -22,14 +22,14 @@ const toNodeResult = evalFn => (config, stats, persistentCache, transientCache) 
 
 // :: Config, Stats, Map, Map, ([NodeResults] -> [NodeResults]), Number, Number, Board, [Number] -> NodeResult
 const evaluate = R.curry((config, stats, persistentCache, transientCache, postprocessFn, maxItDepth, itDepth) =>
-  withCache((board, nextSlots) => R.compose(
+  withCache((board, slotsToEvaluate) => R.compose(
     findSuccessor,
     postprocessFn(evaluate)(config, stats, persistentCache, transientCache, maxItDepth, board),
     mapWithPruning(toNodeResult(evaluate)(config, stats, persistentCache, transientCache)),
     R.map(Node(config, maxItDepth, itDepth, board)),
     prioritiseSlots(board),
     F.peek(() => stats.iterationCount++),
-  )(nextSlots), persistentCache, transientCache)
+  )(slotsToEvaluate), persistentCache, transientCache)
 )
 
 const topLevelProcessing = config => evalFn => (...args) => R.compose(
